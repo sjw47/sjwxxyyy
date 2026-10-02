@@ -1126,7 +1126,10 @@ textarea, input { font-family: inherit; }
   width: 100%; resize: none; border: none; background: transparent;
   font-size: 14px; line-height: 1.6; color: var(--text-1);
   min-height: 58px; max-height: 180px;
+  overflow-y: auto;
 }
+/* 批量模式：输入区可长到视口的一半，保证每一条都看得见 */
+.card-add.batch textarea { max-height: min(42vh, 340px); }
 .card-add textarea:focus { outline: none; }
 .card-add textarea::placeholder { color: var(--text-3); }
 .card-add-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 8px; }
@@ -1797,7 +1800,7 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
       <div class="group-bar" id="groupBar"></div>
     </div>
     <div class="card-add">
-      <textarea id="cardInput" maxlength="500" placeholder="写下 TA 会说的话…&#10;每一张字卡，都是 TA 未来某次回复的可能。"></textarea>
+      <textarea id="cardInput" placeholder="写下 TA 会说的话…&#10;每一张字卡，都是 TA 未来某次回复的可能。"></textarea>
       <div class="card-add-footer">
         <label class="batch-toggle"><input type="checkbox" id="batchMode">批量模式（每行一张）</label>
         <button class="btn btn-primary" id="addCardBtn" type="button">添加</button>
@@ -7425,16 +7428,17 @@ const CardsPanel = {
   lastDedupe: null,       // 最近一次查重结果（用于撤销）
 
   init() {
-    $('#btnCards').addEventListener('click', () => { UI.openPanel('cardsPanel'); this.renderGroups(); this.renderList(); setTimeout(() => $('#cardInput').focus(), 350); });
+    $('#btnCards').addEventListener('click', () => { UI.openPanel('cardsPanel'); this.renderGroups(); this.renderList(); setTimeout(() => { this.syncBatchMode(); $('#cardInput').focus(); }, 350); });
     $$('#cardsPanel [data-close]').forEach(b => b.addEventListener('click', () => UI.closePanels()));
 
     $('#addCardBtn').addEventListener('click', () => this.add());
-    $('#cardInput').addEventListener('input', () => this.updateBatchHint());
+    $('#cardInput').addEventListener('input', () => { this.autoGrowCardInput(); this.updateBatchHint(); });
     $('#cardInput').addEventListener('keydown', e => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); this.add(); }
     });
-    $('#batchMode').addEventListener('change', () => this.updateBatchHint());
+    $('#batchMode').addEventListener('change', () => { this.syncBatchMode(); this.updateBatchHint(); });
     $('#btnClearCards').addEventListener('click', () => this.clearAll());
+    this.syncBatchMode();
     this.updateBatchHint();
     // 搜索框
     const searchInput = $('#cardSearch');
@@ -7527,10 +7531,12 @@ const CardsPanel = {
     const input = $('#cardInput');
     const raw = input.value;
     const batch = $('#batchMode').checked;
-    const texts = (batch ? raw.split('\n') : [raw])
+    const rawLines = (batch ? raw.split('\n') : [raw])
       .map(t => t.trim())
-      .filter(t => t.length > 0)
-      .map(t => t.slice(0, 500));
+      .filter(t => t.length > 0);
+    // 单张字卡上限 500 字，超出的行按上限截断并如实告诉用户（不再静默丢弃整段输入）
+    const overLong = rawLines.filter(t => t.length > 500).length;
+    const texts = rawLines.map(t => t.slice(0, 500));
     if (!texts.length) { UI.toast('先写点什么吧'); return; }
 
     // 去重：跳过库里已有的相同内容（忽略空格差异），以及本次输入内部的重复
@@ -7549,11 +7555,48 @@ const CardsPanel = {
     const inGroupFilter = (this.currentFilter !== 'all' && this.currentFilter !== 'none') ? this.currentFilter : null;
     Store.addCards(fresh, inGroupFilter);
     input.value = '';
+    this.autoGrowCardInput();
     input.focus();
     this.updateBatchHint();
     const gname = inGroupFilter ? (Store.state.groups.find(g => g.id === inGroupFilter) || {}).name : null;
-    UI.toast('已添加 ' + fresh.length + ' 张字卡' + (gname ? ' 到「' + gname + '」' : '') + (skipped ? '（跳过 ' + skipped + ' 张重复）' : ''));
+    UI.toast('已添加 ' + fresh.length + ' 张字卡' + (gname ? ' 到「' + gname + '」' : '')
+      + (skipped ? '（跳过 ' + skipped + ' 张重复）' : '')
+      + (overLong ? (batch ? '（' + overLong + ' 行超过 500 字，已按上限截断）' : '（超过 500 字部分已截断）') : ''));
     if (skipped) Bus.emit('cards:import', { added: fresh.length, skipped });
+  },
+
+  /**
+   * 同步批量模式对输入框的限制：
+   * 单条模式 = 整段最多 500 字（一张字卡的上限）；
+   * 批量模式 = 不设总字数上限（否则多行会被浏览器静默截断），
+   * 只在添加时按「每张最多 500 字」逐条限制。
+   */
+  syncBatchMode() {
+    const input = $('#cardInput');
+    if (!input) return;
+    const wrap = input.closest('.card-add');
+    const batch = $('#batchMode').checked;
+    if (batch) {
+      input.removeAttribute('maxlength');
+      input.placeholder = '每行一张字卡，回车换行…\n可以一次粘贴很多张，都能完整显示';
+      if (wrap) wrap.classList.add('batch');
+    } else {
+      input.setAttribute('maxlength', '500');
+      input.placeholder = '写下 TA 会说的话…\n每一张字卡，都是 TA 未来某次回复的可能。';
+      if (wrap) wrap.classList.remove('batch');
+    }
+    this.autoGrowCardInput();
+  },
+
+  /** 输入区随内容长高（到上限后可内部滚动），保证输入的每一行都看得见 */
+  autoGrowCardInput() {
+    const input = $('#cardInput');
+    if (!input) return;
+    const maxH = parseFloat(getComputedStyle(input).maxHeight) || 180;
+    input.style.height = 'auto';
+    const h = Math.min(input.scrollHeight, maxH);
+    input.style.height = h + 'px';
+    input.style.overflowY = input.scrollHeight > maxH + 1 ? 'auto' : 'hidden';
   },
 
   /** 显示单条/批量模式的实时提示（含去重预览 + 目标分组） */
@@ -7574,8 +7617,12 @@ const CardsPanel = {
         seen.add(key);
         return true;
       }).length;
+      const overLong = lines.filter(t => t.length > 500).length;
+      const dupCount = lines.length - newCount;
       hint.style.opacity = raw.trim() ? '1' : '0.3';
-      hint.textContent = target + to + '。当前可新增 ' + newCount + ' 张' + (newCount < lines.length ? '（' + (lines.length - newCount) + ' 张与已有重复）' : '');
+      hint.textContent = target + to + '。共 ' + lines.length + ' 行，可新增 ' + newCount + ' 张'
+        + (dupCount ? '（' + dupCount + ' 张与已有重复）' : '')
+        + (overLong ? '（' + overLong + ' 行超过 500 字，将按上限截断）' : '');
     } else {
       hint.style.opacity = '0.3';
       hint.textContent = target + to + '。';
