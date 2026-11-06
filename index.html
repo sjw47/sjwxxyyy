@@ -1627,6 +1627,90 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+/* ==========================================================================
+   拾句：把「我说过的话」收进字卡库（新增功能，样式独立于原有模块）
+   ========================================================================== */
+.pick-entry {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  margin: 10px 0 4px; padding: 10px 12px; text-align: left;
+  border: 1px solid var(--accent-glow); border-radius: 14px;
+  background: var(--accent-glow); color: var(--text-1);
+  transition: transform .15s, filter .2s;
+}
+.pick-entry:active { transform: scale(.985); }
+.pick-entry:hover { filter: brightness(.98); }
+.pick-entry .pe-icon { flex: none; color: var(--accent); display: inline-flex; }
+.pick-entry .pe-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pick-entry .pe-main b { font-size: 13.5px; font-weight: 600; }
+.pick-entry .pe-main small { font-size: 11.5px; color: var(--text-2); line-height: 1.5; }
+.pick-entry .pe-chev { flex: none; color: var(--accent); font-size: 20px; line-height: 1; }
+
+/* 字卡库里「拾自你」的小标签 */
+.card-picked-tag {
+  display: inline-flex; align-items: center; gap: 3px; cursor: pointer;
+  padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  background: var(--accent-glow); color: var(--accent);
+}
+.card-picked-tag:hover { filter: brightness(.93); }
+
+/* 拾句弹窗 */
+.pick-modal-card {
+  width: min(520px, 100%);
+  max-height: min(84vh, 760px);
+  display: flex; flex-direction: column;
+  overflow: hidden; padding-bottom: 16px;
+}
+.pick-head { flex: none; }
+.pick-head-info { font-size: 12.5px; color: var(--text-2); line-height: 1.7; margin-top: 6px; }
+.pick-tools { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.pick-search {
+  flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+  border: 1px solid var(--divider); border-radius: 12px;
+  padding: 8px 12px; background: var(--surface-solid); color: var(--text-3);
+}
+.pick-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.pick-search input {
+  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+  color: var(--text-1); font-size: 13.5px;
+}
+.pick-search input::placeholder { color: var(--text-3); }
+.pick-count { flex: none; font-size: 12px; color: var(--text-3); }
+.pick-list { flex: 1; overflow-y: auto; min-height: 120px; margin-top: 12px; padding-right: 2px; }
+.pick-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; margin-bottom: 8px;
+  border: 1px solid var(--divider); border-radius: 13px;
+  background: var(--surface-solid); cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.pick-item:hover { border-color: var(--accent); }
+.pick-item.checked { border-color: var(--accent); background: var(--accent-glow); }
+.pick-item.disabled { opacity: .55; cursor: default; }
+.pick-item.disabled:hover { border-color: var(--divider); }
+.pick-check { flex: none; width: 17px; height: 17px; margin-top: 3px; accent-color: var(--accent); }
+.pick-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.pick-text {
+  font-size: 13.5px; line-height: 1.6; color: var(--text-1);
+  white-space: pre-wrap; word-break: break-word;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pick-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-3); }
+.pick-state { color: var(--accent); font-weight: 600; }
+.pick-list-empty { text-align: center; color: var(--text-3); font-size: 13px; padding: 26px 0; line-height: 1.9; white-space: pre-line; }
+.pick-auto { flex: none; margin-top: 10px; border-top: 1px solid var(--divider); padding-top: 4px; }
+.pick-auto .row-field { padding: 8px 0; }
+.pick-auto .label { font-size: 13px; }
+.pick-chance { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); }
+.pick-chance input {
+  width: 62px; padding: 7px 6px; text-align: center; border-radius: 10px;
+  border: 1px solid var(--divider); background: var(--surface-solid); color: var(--text-1); font-size: 13.5px;
+}
+.pick-chance input:focus { outline: none; border-color: var(--accent); }
+.pick-foot { flex: none; display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+@media (max-width: 480px) {
+  .pick-modal-card { max-height: 88vh; }
+  .pick-list { min-height: 100px; }
+}
 </style>
 </head>
 <body data-theme="light" data-accent="rose">
@@ -1807,6 +1891,15 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
       </div>
       <div class="card-batch-hint" id="batchHint"></div>
     </div>
+    <!-- 拾句入口：让 TA 自由挑选「我说过的话」收进字卡库 -->
+    <button class="pick-entry" id="btnPickFromMe" type="button" title="拾取我说过的话，收进字卡库">
+      <span class="pe-icon" id="pickEntryIcon"></span>
+      <span class="pe-main">
+        <b>拾取我说过的话</b>
+        <small>挑几句我发过的话，收进字卡库，TA 聊天时就能用上</small>
+      </span>
+      <span class="pe-chev">›</span>
+    </button>
     <div class="card-search">
       <span class="card-search-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1825,6 +1918,41 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
     <button class="btn btn-ghost" id="mbDone" type="button">完成</button>
   </div>
 </aside>
+
+<!-- ================= 拾句弹窗：让 TA 自由挑选「我说过的话」 ================= -->
+<div class="modal" id="pickModal" aria-label="拾取我说过的话">
+  <div class="modal-mask" data-close-pick></div>
+  <div class="modal-card pick-modal-card">
+    <div class="pick-head">
+      <h3 class="modal-title">拾取我说过的话</h3>
+      <p class="pick-head-info">勾选你说过的话，TA 会把它收进字卡库；以后聊天时，TA 就可能原样把这句说回给你。已在库里的句子不会重复添加，收进来的字卡也能照常编辑、删除、试发。</p>
+      <div class="pick-tools">
+        <label class="pick-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="pickSearch" placeholder="找一句我说过的话…" maxlength="50" autocomplete="off">
+        </label>
+        <button class="btn btn-ghost" id="pickSelectAll" type="button">全选</button>
+        <span class="pick-count" id="pickCount"></span>
+      </div>
+    </div>
+    <div class="pick-list" id="pickList"></div>
+    <div class="pick-auto">
+      <div class="row-field">
+        <span class="label">聊天时 TA 自动拾取<small>开启后，TA 会偶尔把你刚说的话收进字卡库，并在下一次回复里用上（默认关闭，不影响原有回复习惯）</small></span>
+        <label class="switch"><input type="checkbox" id="pickAutoToggle"><span class="track"></span></label>
+      </div>
+      <div class="pick-chance" id="pickChanceRow" style="display:none;">
+        <span>每次拾取概率</span>
+        <input type="number" id="pickChance" min="0" max="100" step="5" value="40"> %
+        <small style="color:var(--text-3);">0 = 不自动拾取</small>
+      </div>
+    </div>
+    <div class="pick-foot">
+      <button class="btn btn-ghost" data-close-pick type="button">取消</button>
+      <button class="btn btn-primary" id="pickConfirm" type="button">收进字卡库（0）</button>
+    </div>
+  </div>
+</div>
 
 <!-- ================= 收藏面板 ================= -->
 <aside class="panel" id="favsPanel" aria-label="收藏夹">
@@ -2367,6 +2495,7 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
      UI          界面基础件：toast / 确认框 / 面板与弹窗开关 / 图标
      Chat        消息流：渲染、发送、回复队列、正在输入
      CardsPanel  字卡库面板：增删改、批量导入、试发
+     PickFromMe  拾句：把「我说过的话」收进字卡库（手动多选 / 单条 / TA 自动拾取）
      Survey      问卷库：出题/编辑/删除、随机抽题、TA 作答与我作答
      Words       背单词：导入单词书 → 按顺序看词 → 默写校验 → 下一个
      Settings    设置面板：读写 settings 并即时应用
@@ -2390,6 +2519,7 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
      groups:remove  {group, movedCount}     删除分组（movedCount=退回未分组的字卡数）
      cards:import   {added, skipped}          导入字卡结果
      cards:use      {cardId}                  某字卡被使用（可用于统计）
+     cards:picked   {cards}                   从「我说过的话」里拾取了字卡
      surveys:add    {survey}                问卷库新增了一道题
      surveys:update {survey}                问卷题目被编辑
      surveys:remove {survey}                问卷题目被删除
@@ -4220,6 +4350,10 @@ const Chat = {
 
     const who = msg.role === 'me' ? '我' : (Store.state.settings.taName || '对方');
     mkItem('回复', 'reply', '', () => this.beginReply(msg, msgEl));
+    // 拾句：把我方文字消息收进字卡库，供 TA 之后聊天使用
+    if (msg.role === 'me' && !msg.recalled && !msg.type && String(msg.text || '').trim()) {
+      mkItem('TA 拾取这句', 'bookmark', '', () => PickFromMe.pickSingle(msg));
+    }
     const favBtn = mkItem(Store.findFavorite(msgId) ? '取消收藏' : '收藏', 'star', Store.findFavorite(msgId) ? 'warn' : '', () => this.toggleFavorite(msgId));
     // 分隔
     const sep = document.createElement('div'); sep.className = 'sep'; menu.appendChild(sep);
@@ -8080,6 +8214,15 @@ const CardsPanel = {
         wtag.addEventListener('click', () => { UI.closePanels(); if (typeof Weather !== 'undefined') Weather.open(); });
         info.appendChild(wtag);
       }
+      // 从「我说过的话」里拾取来的字卡：标一下来源，点击可回到原消息
+      if (card.pickedFromMe) {
+        const ptag = document.createElement('span');
+        ptag.className = 'card-picked-tag';
+        ptag.dataset.fromMsgId = card.fromMsgId || '';
+        ptag.textContent = '拾自你';
+        ptag.title = '这是从你说过的话里拾取的字卡，TA 聊天时会用到；点击回到原消息';
+        info.appendChild(ptag);
+      }
       // 内容重复时打一个可点击的标记，点它直接去查重
       const dupCount = dupMap.get(cardDupKey(card.text)) || 0;
       if (dupCount > 1) {
@@ -8101,6 +8244,268 @@ const CardsPanel = {
       item.appendChild(text);
       item.appendChild(meta);
       list.appendChild(item);
+    });
+  },
+};
+
+/* ========================= 八·二、拾句 PickFromMe =========================
+   把「我说过的话」变成 TA 能用的字卡。纯增量扩展，不改动原有逻辑：
+
+   · 手动挑选：字卡库里的「拾取我说过的话」入口 → 多选弹窗自由勾选；
+     长按任意一条我方文字消息 → 「TA 拾取这句」单条收取。
+   · TA 自动拾取：弹窗内的开关（默认关闭）。开启后，我每发一条文字消息，
+     TA 有概率把它收进字卡库，并排到抽取队列最前面，下一次回复就会用上。
+   · 聊天时使用：拾取来的字卡就是普通字卡，原样参与 Deck 抽取（洗牌 / 纯随机 /
+     拼字卡）、试发、编辑、分组、查重、导出与完整备份，无需改动回复流程。
+   · 来源标记：cards[].pickedFromMe / fromMsgId，字卡库里显示「拾自你」，
+     点它可以回到当时那条聊天消息。
+=========================================================================== */
+const PickFromMe = {
+  selected: new Set(),
+  keyword: '',
+  MAX_RENDER: 300,   // 一次最多渲染多少条，避免超长聊天记录卡顿
+
+  init() {
+    const iconEl = $('#pickEntryIcon');
+    if (iconEl) iconEl.innerHTML = icon('bookmark', 18);
+    $('#btnPickFromMe').addEventListener('click', () => this.open());
+    $$('#pickModal [data-close-pick]').forEach(b => b.addEventListener('click', () => UI.closeModal('pickModal')));
+    $('#pickSearch').addEventListener('input', e => { this.keyword = e.target.value.trim(); this.render(); });
+    $('#pickSelectAll').addEventListener('click', () => this.toggleSelectAll());
+    $('#pickConfirm').addEventListener('click', () => this.commit());
+    $('#pickList').addEventListener('change', e => {
+      const cb = e.target.closest('.pick-check');
+      if (!cb) return;
+      if (cb.checked) this.selected.add(cb.dataset.msgId);
+      else this.selected.delete(cb.dataset.msgId);
+      const item = cb.closest('.pick-item');
+      if (item) item.classList.toggle('checked', cb.checked);
+      this.syncFoot();
+    });
+
+    // 自动拾取开关与概率（存进 settings，随完整备份一起导出）
+    $('#pickAutoToggle').addEventListener('change', e => {
+      const c = this.cfg();
+      c.auto = !!e.target.checked;
+      $('#pickChanceRow').style.display = c.auto ? 'flex' : 'none';
+      Store.save();   // 开关状态与下方概率行本身就是反馈，不额外弹 toast 挡住底部按钮
+    });
+    $('#pickChance').addEventListener('change', e => {
+      const c = this.cfg();
+      let v = parseFloat(e.target.value);
+      if (isNaN(v)) v = 40;
+      v = clamp(v, 0, 100);
+      e.target.value = v;
+      c.chance = v / 100;
+      Store.save();
+    });
+
+    // 「拾自你」标签由 CardsPanel.renderList 生成，点击行为在这里统一代理
+    $('#cardList').addEventListener('click', e => {
+      const tag = e.target.closest('.card-picked-tag');
+      if (!tag) return;
+      const id = tag.dataset.fromMsgId;
+      UI.closePanels();
+      setTimeout(() => {
+        if (!id || !Chat.locateMessage(id)) UI.toast('原来的消息已经不在聊天记录里了');
+      }, 300);
+    });
+
+    // TA 自动拾取：chat:send 在 requestReply 之前同步触发，此时把新卡插到队首，
+    // 本次回复（Deck.draw）就会抽到它；纯随机策略下新卡也自然在候选池里。
+    Bus.on('chat:send', ev => {
+      const c = this.cfg();
+      if (!c.auto || !this.isPickable(ev && ev.msg)) return;
+      const p = clamp(Number(c.chance) || 0, 0, 1);
+      if (p <= 0 || Math.random() >= p) return;
+      this.pick([ev.msg], { enqueue: true });
+    });
+    Bus.on('chat:clear', () => { if ($('#pickModal').classList.contains('open')) this.render(); });
+    Bus.on('data:imported', () => { if ($('#pickModal').classList.contains('open')) this.render(); });
+  },
+
+  /** 配置惰性补建：不动 defaults()，旧数据也能平滑升级 */
+  cfg() {
+    const s = Store.state.settings;
+    if (!s.pickFromMe || typeof s.pickFromMe !== 'object') s.pickFromMe = { auto: false, chance: 0.4 };
+    if (typeof s.pickFromMe.auto !== 'boolean') s.pickFromMe.auto = !!s.pickFromMe.auto;
+    if (typeof s.pickFromMe.chance !== 'number') s.pickFromMe.chance = 0.4;
+    return s.pickFromMe;
+  },
+
+  isPickable(m) {
+    return !!(m && m.role === 'me' && !m.recalled && !m.type && String(m.text || '').trim());
+  },
+
+  /** 把若干条「我」的消息变成字卡；返回新建的字卡数组 */
+  pick(msgs, opts = {}) {
+    if (!Store.state) return [];
+    const seen = new Set(Store.state.cards.map(c => cardDupKey(c.text)));
+    const items = [];
+    (msgs || []).forEach(m => {
+      if (!this.isPickable(m)) return;
+      const text = String(m.text).trim().slice(0, 500);
+      const key = cardDupKey(text);
+      if (!key || seen.has(key)) return;    // 库里已有同样的话就跳过，不重复添加
+      seen.add(key);
+      items.push({ text, fromMsgId: m.id, fromTs: m.ts });
+    });
+    if (!items.length) return [];
+    const now = Date.now();
+    const cards = items.map((it, i) => ({
+      id: uid() + '-p' + i,
+      text: it.text,
+      createdAt: now + i,
+      category: null,          // 统一放「未分组」，保证 TA 随时能抽到
+      pickedFromMe: true,
+      fromMsgId: it.fromMsgId,
+      fromTs: it.fromTs || now,
+      pickedAt: now + i,
+    }));
+    Store.state.cards.push(...cards);
+    Store.save();
+    Bus.emit('cards:add', { cards });       // 字卡库面板自动刷新
+    Bus.emit('cards:picked', { cards });    // 对外事件，方便后续扩展
+    if (opts.enqueue !== false) this.enqueue(cards);
+    return cards;
+  },
+
+  /** 让新拾取的字卡排到下一轮抽取的最前面（洗牌策略下 TA 下一句就会用到） */
+  enqueue(cards) {
+    if (!Array.isArray(Store.state.deckQueue)) Store.state.deckQueue = [];
+    cards.map(c => c.id).reverse().forEach(id => Store.state.deckQueue.unshift(id));
+    Store.save();
+  },
+
+  /* ---------- 拾句弹窗 ---------- */
+
+  open() {
+    this.selected.clear();
+    this.keyword = '';
+    $('#pickSearch').value = '';
+    const c = this.cfg();
+    $('#pickAutoToggle').checked = !!c.auto;
+    $('#pickChanceRow').style.display = c.auto ? 'flex' : 'none';
+    $('#pickChance').value = Math.round(clamp(Number(c.chance) || 0, 0, 1) * 100);
+    this.render();
+    UI.openModal('pickModal');
+  },
+
+  /** 当前「我」说过的文字消息（按时间倒序），附带是否已在库 / 已被拾取 */
+  candidates() {
+    const cards = Store.state.cards || [];
+    const keys = new Set(cards.map(c => cardDupKey(c.text)));
+    const picked = new Set(cards.filter(c => c.pickedFromMe && c.fromMsgId).map(c => c.fromMsgId));
+    const kw = this.keyword.toLowerCase();
+    return (Store.state.messages || [])
+      .filter(m => this.isPickable(m) && (!kw || String(m.text).toLowerCase().includes(kw)))
+      .slice()
+      .sort((a, b) => b.ts - a.ts)
+      .map(m => ({
+        msg: m,
+        inLib: keys.has(cardDupKey(String(m.text).trim().slice(0, 500))),
+        wasPicked: picked.has(m.id),
+      }));
+  },
+
+  render() {
+    const list = $('#pickList');
+    if (!list) return;
+    // 只清理「已不在聊天记录里」的选中项，搜索过滤不会清掉已勾选的内容
+    const alive = new Set((Store.state.messages || []).filter(m => this.isPickable(m)).map(m => m.id));
+    [...this.selected].forEach(id => { if (!alive.has(id)) this.selected.delete(id); });
+    list.innerHTML = '';
+    const all = this.candidates();
+    const shown = all.slice(0, this.MAX_RENDER);
+    $('#pickCount').textContent = '可拾取 ' + all.filter(x => !x.inLib && !x.wasPicked).length + ' 句';
+
+    if (!all.length) {
+      const empty = document.createElement('div');
+      empty.className = 'pick-list-empty';
+      empty.textContent = this.keyword
+        ? '没有找到包含「' + this.keyword + '」的话。\n换个词试试～'
+        : '你还没有发过文字消息。\n先去聊天里说点什么，TA 才有话可拾取。';
+      list.appendChild(empty);
+    } else {
+      shown.forEach(x => {
+        const { msg, inLib, wasPicked } = x;
+        const disabled = inLib || wasPicked;
+        const item = document.createElement('label');
+        item.className = 'pick-item' + (disabled ? ' disabled' : '') + (this.selected.has(msg.id) ? ' checked' : '');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'pick-check';
+        cb.dataset.msgId = msg.id;
+        cb.checked = this.selected.has(msg.id);
+        cb.disabled = disabled;
+        const body = document.createElement('span');
+        body.className = 'pick-body';
+        const text = document.createElement('span');
+        text.className = 'pick-text';
+        text.textContent = String(msg.text).trim();
+        const meta = document.createElement('span');
+        meta.className = 'pick-meta';
+        const time = document.createElement('span');
+        time.textContent = fmtFullDate(msg.ts) + ' ' + fmtTime(msg.ts);
+        const state = document.createElement('span');
+        state.className = 'pick-state';
+        state.textContent = wasPicked ? '已拾取' : (inLib ? '已在字卡库' : '可拾取');
+        meta.appendChild(time);
+        meta.appendChild(state);
+        body.appendChild(text);
+        body.appendChild(meta);
+        item.appendChild(cb);
+        item.appendChild(body);
+        list.appendChild(item);
+      });
+      if (all.length > shown.length) {
+        const more = document.createElement('div');
+        more.className = 'pick-list-empty';
+        more.textContent = '只显示最近 ' + this.MAX_RENDER + ' 句，共 ' + all.length + ' 句；用上方搜索找更早的。';
+        list.appendChild(more);
+      }
+    }
+    this.syncFoot();
+  },
+
+  syncFoot() {
+    const btn = $('#pickConfirm');
+    if (!btn) return;
+    const n = this.selected.size;
+    btn.textContent = '收进字卡库（' + n + '）';
+    btn.disabled = n === 0;
+    btn.style.opacity = n === 0 ? '.55' : '';
+    $('#pickSelectAll').textContent = n ? '清空选择' : '全选';
+  },
+
+  toggleSelectAll() {
+    if (this.selected.size) {
+      this.selected.clear();
+    } else {
+      this.candidates().filter(x => !x.inLib && !x.wasPicked).slice(0, this.MAX_RENDER)
+        .forEach(x => this.selected.add(x.msg.id));
+    }
+    this.render();
+  },
+
+  commit() {
+    if (!this.selected.size) return;
+    const msgs = (Store.state.messages || []).filter(m => this.selected.has(m.id) && this.isPickable(m));
+    const cards = this.pick(msgs);
+    UI.closeModal('pickModal');
+    if (cards.length) UI.toast('TA 收下了 ' + cards.length + ' 句话，已经放进字卡库');
+    else UI.toast('这些话 TA 已经会说了（重复跳过）');
+  },
+
+  /** 长按我方消息 → 单条拾取 */
+  pickSingle(msg) {
+    const cards = this.pick([msg]);
+    if (!cards.length) { UI.toast('这句话 TA 已经会说了'); return; }
+    UI.toast('TA 收下了这句话，已放进字卡库', {
+      action: {
+        label: '去看看',
+        onClick: () => { UI.openPanel('cardsPanel'); CardsPanel.renderGroups(); CardsPanel.renderList(); },
+      },
     });
   },
 };
@@ -8800,6 +9205,7 @@ const DataIO = {
   // 模块初始化
   Chat.init();
   CardsPanel.init();
+  PickFromMe.init();
   Settings.init();
   AvatarPicker.init();
   DataIO.init();
