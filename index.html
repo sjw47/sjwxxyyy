@@ -2494,7 +2494,7 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
         <button class="btn btn-ghost" id="wordBookQuickAdd" type="button">＋ 添到列表</button>
       </div>
       <textarea id="wordBookInput" rows="9" placeholder="calorie&#10;n. [C] (热量单位) 卡，卡路里&#10;&#10;campaign&#10;n. [C] 运动；活动&#10;vt.&amp;vi. 参加运动&#10;&#10;celebrate&#10;vt.&amp;vi. 庆祝；庆贺&#10;vt. 颂扬；赞美&#10;celebration&#10;n. 庆祝；颂扬"></textarea>
-      <div class="wb-format-note">英文单词单独一行，下面每个词性一行；词条之间空行可有可无。[C] / [U]、(括注) 会自动忽略，不算要默写的意思；多个意思用逗号、分号或顿号隔开都行。旧格式「advance vt. 促进,推动」仍然支持。</div>
+      <div class="wb-format-note">英文单词单独一行，下面每个词性一行；词条之间空行可有可无。n. / v. / vt.&vi. / a. / ad. 等词性缩写都认；[C] / [U] / [C-常用pl.]、(括注) 会自动忽略，不算要默写的意思；多个意思用逗号、分号或顿号隔开都行。旧格式「advance vt. 促进,推动」仍然支持。</div>
       <div class="wb-msg" id="wordBookPasteHint"></div>
     </div>
     <div class="field" id="wordBookPreviewWrap" style="display:none;">
@@ -6939,7 +6939,10 @@ const Weather = {
    新规则：
      · 词典式粘贴：英文单词单独一行，下面每个词性一行；词条间空行可有可无
        （calorie / n. [C] (热量单位) 卡，卡路里 / campaign / n. … / vt.&vi. …）
-     · [C]/[U] 与括号括注自动忽略；词性行后的汉字行算上一词性的释义续行
+     · 词性缩写统一识别：n./v./vt./vi./vt.&vi./a.（形容词）/ad.（副词）/adj./adv./prep. 等
+     · [C]/[U]/[C-常用pl.]/[sing.] 与圆括号括注先整体剥离、再拆义项
+       （避免「（为兴趣、娱乐…的）活动」被顿号切碎后括注混进答案）
+     · 词性行后的汉字行算上一词性的释义续行
      · 旧的「一行一个词性」格式（advance vt. 促进,推动）继续支持
      · 全书英文名相同的词性行自动归成一组：学习卡片里同时显示这个单词的所有词性
      · 默写时英文只填一次，下面按词性逐行填各自对应的汉语意思
@@ -6969,17 +6972,23 @@ function mkEl(tag, cls, text) {
      · 汉语意思只认汉字，多个意思用逗号隔开（英文字母、标点、空格一律忽略）
 -------------------------------------------------------------------------- */
 
+/* 词性缩写统一表（长的放前面，避免 ad 抢在 adv 前、a 抢在 art/aux 前）。
+   词典里常见的 a.（形容词）、ad.（副词）、v. / n. / vt.&vi. 等都收进来，
+   三处正则共用这一份，避免「有的地方认、有的地方不认」。 */
+const POS_ABBR_LIST = [
+  'prep','conj','pron','abbr','num','aux','art','int','adv','adj','pl','vt','vi','ad','a','n','v'
+];
 const WORD_POS_RE = new RegExp(
   '^(?:' +
-    '(' + ['n', 'v', 'vt', 'vi', 'adj', 'adv', 'prep', 'conj', 'pron', 'num', 'art', 'int', 'aux', 'pl', 'abbr'].join('|') + ')\\.' +
+    '(' + POS_ABBR_LIST.join('|') + ')\\.' +
     '|' +
-    '((?:n|v|vt|vi|adj|adv|prep|conj|pron|num|art|int)(?![A-Za-z]))' +
+    '((?:' + POS_ABBR_LIST.join('|') + ')(?![A-Za-z]))' +
     '|' +
     '(名词|动词|形容词|副词|介词|连词|代词|数词|感叹词|助动词|及物动词|不及物动词|量词)' +
   ')\\s*[.。、:：]?\\s*(.*)$', 'i');
 
 const POS_CN_SET = new Set(['名词','动词','形容词','副词','介词','连词','代词','数词','感叹词','助动词','及物动词','不及物动词','量词']);
-const POS_ABBR_RE = /^(?:n|v|vt|vi|adj|adv|prep|conj|pron|num|art|int|aux|pl|abbr)$/i;
+const POS_ABBR_RE = new RegExp('^(?:' + POS_ABBR_LIST.join('|') + ')$', 'i');
 
 const HAS_CJK = /[\u3400-\u9fff\uF900-\uFAFF]/;
 const hasCJK = s => HAS_CJK.test(String(s || ''));
@@ -7019,10 +7028,15 @@ function splitWordPos(s) {
   return { pos: pos.trim(), rest: (m[4] || '').trim() };
 }
 
-/** 汉语意思规范化：按逗号/分号等分隔，每项只留汉字，去重后用逗号拼回去 */
+/**
+ * 汉语意思规范化：
+ * 必须在「按逗号/顿号拆分」之前，先把整串里的 [C-常用pl.]、(括注)、（括注）整体去掉。
+ * 否则「（为兴趣、娱乐或达到一定目的而进行的）活动」会被顿号切成两半、括号不再完整，
+ * 括注里的汉字就会混进答案。剥离后再拆义项、只留汉字、去重。
+ */
 function cleanZh(s) {
   const parts = [];
-  String(s == null ? '' : s)
+  stripGlossNotes(String(s == null ? '' : s))
     .split(/[,，;；、|｜\/／\n\r]+/)
     .map(hanOnly)
     .filter(Boolean)
@@ -7045,6 +7059,10 @@ function parseWordLine(line) {
   let raw = String(line == null ? '' : line).trim();
   if (!raw || raw.charAt(0) === '#') return null;
   raw = raw.replace(/^\(?\d+[\.、)）:：]\s*/, '').trim();   // 去掉行首序号：1. / 1、/ 1)
+  if (!raw) return null;
+  // [C] / [U, C] / [C-常用pl.] / [sing.] 等语法标记先整块丢掉，
+  // 否则里面的字母（U] / C]）会被误当成英文单词。
+  raw = raw.replace(/\[[^\]\n]*\]/g, ' ').trim();
   if (!raw) return null;
 
   // 所有意思分隔符统一成英文逗号，空白统一成单空格
@@ -7126,7 +7144,7 @@ function fillInheritedEn(list) {
    · 复合词性（vt.&vi.）、中文词性照样认；旧的「一行一个词性」格式继续支持
 -------------------------------------------------------------------------- */
 
-const POS_ATOM = '(?:vt|vi|adj|adv|prep|conj|pron|num|art|int|aux|pl|abbr|n|v)(?![A-Za-z])';
+const POS_ATOM = '(?:' + POS_ABBR_LIST.join('|') + ')(?![A-Za-z])';
 const POS_LEAD_RE = new RegExp(
   '^\\s*(' +
     POS_ATOM + '\\.?\\s*(?:&\\s*' + POS_ATOM + '\\.?\\s*)*' +
@@ -7158,20 +7176,29 @@ function isStandaloneWordLine(line) {
   if (!t || hasCJK(t) || /^#/.test(t)) return false;
   if (/[,，;；|｜]/.test(t)) return false;                       // 旧格式「英文,词性 释义」
   if (!/^[A-Za-z][A-Za-z\s\-'.&()]*$/.test(t)) return false;    // 纯英文（允许短语）
-  if (isPosToken(t) || matchPosLine(t)) return false;            // 词性行不算单词
+  if (isPosToken(t) || matchPosLine(t)) {
+    // 整行恰好是不带点的缩写（art / ad / a / pl …）：更可能是单词本身，不是词性行
+    if (!/[.。、:：]$/.test(t) && !/\s/.test(t) && POS_ABBR_RE.test(t)) return true;
+    return false;                                               // 其余按词性行处理
+  }
   return true;
 }
 
-/** 文本里出现「英文单词行 + 紧跟词性行」就判定为词典式粘贴 */
+/**
+ * 判定是不是「词典式粘贴」：
+ * 只要文本里出现过纯英文单词单独成行，且它后面（到下一个单词行之前）
+ * 至少有一行是词性行，就整份按词典式解析。
+ * 旧版本只看「第一个单词行后面紧跟的那一行」——一旦第一条词条用了
+ * 没被收录的词性缩写（如 ad. / a.），就会误判成旧格式，整份文本被逐行拆错。
+ */
 function looksLikeBlockFormat(lines) {
-  for (let i = 0; i < lines.length; i++) {
-    if (!isStandaloneWordLine(lines[i])) continue;
-    for (let j = i + 1; j < lines.length; j++) {
-      if (!String(lines[j] || '').trim()) continue;
-      return !!matchPosLine(lines[j]);
-    }
+  let seenWord = false, paired = false;
+  for (const line of lines) {
+    if (isStandaloneWordLine(line)) { seenWord = true; continue; }
+    if (!String(line || '').trim()) continue;
+    if (matchPosLine(line) && seenWord) paired = true;
   }
-  return false;
+  return paired;
 }
 
 /** 解析词典式粘贴文本：英文单词行 → 若干词性行（可带续行） */
