@@ -551,6 +551,30 @@ textarea, input { font-family: inherit; }
 .weather-empty { text-align: center; color: var(--text-3); font-size: 13px; padding: 26px 12px; line-height: 1.9; white-space: pre-line; }
 .weather-foot { flex: none; border-top: 1px solid var(--divider); padding-top: 12px; margin-top: 4px; }
 .weather-foot .row-field { padding: 10px 0; }
+/* 一个天气的多条回应字卡：可自由增删，发天气时随机抽一条 */
+.wi-cards { margin-top: 12px; border-top: 1px dashed var(--divider); padding-top: 10px; }
+.wi-cards-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.wi-cards-title { font-size: 12.5px; font-weight: 600; color: var(--text-1); }
+.wi-cards-note { font-size: 11px; color: var(--text-3); text-align: right; }
+.wi-card-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+.wi-card-row .weather-card-input { flex: 1; min-width: 0; min-height: 46px; }
+.wi-card-del {
+flex: none; width: 30px; height: 30px; margin-top: 1px; border-radius: 9px;
+display: inline-flex; align-items: center; justify-content: center;
+font-size: 18px; line-height: 1; color: var(--text-3);
+background: var(--chip-bg); transition: background .15s, color .15s, transform .15s;
+}
+.wi-card-del:hover { background: rgba(229,100,110,.14); color: #e5646e; }
+.wi-card-del:active { transform: scale(.9); }
+.wi-card-add {
+width: 100%; padding: 9px 10px; font-size: 12.5px;
+border: 1px dashed var(--accent); border-radius: 10px;
+background: var(--accent-glow); color: var(--accent); font-weight: 600;
+transition: background .15s, transform .15s;
+}
+.wi-card-add:hover { background: var(--chip-bg); }
+.wi-card-add:active { transform: scale(.98); }
+.wi-cards-empty { font-size: 12px; color: var(--text-3); line-height: 1.7; padding: 2px 2px 8px; }
 
 /* ---------- 存储（设置里的容量卡片） ---------- */
 .storage-card {
@@ -574,6 +598,95 @@ textarea, input { font-family: inherit; }
 .words-add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 13px; }
 .words-list { flex: 1; overflow-y: auto; margin-top: 12px; padding: 0 2px 12px; }
 
+/* 跨单词本搜索：输入框在「手动粘贴单词」下面 */
+.wb-search { margin-top: 10px; }
+.wb-search-input {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid var(--divider); background: var(--surface);
+  border-radius: 12px; padding: 11px 13px;
+  color: var(--text-1); font-size: 14px;
+}
+.wb-search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.wb-search-results {
+  flex: none; max-height: 230px; overflow-y: auto;
+  margin-top: 8px; border: 1px solid var(--divider); border-radius: 12px;
+  background: var(--surface-solid);
+}
+.wb-search-results:empty { display: none; }
+.wb-search-head { font-size: 12px; color: var(--text-2); padding: 8px 13px; border-bottom: 1px solid var(--divider); }
+.wb-search-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; text-align: left; padding: 10px 13px;
+  border-bottom: 1px solid var(--divider); font-size: 14px;
+  transition: background .15s;
+}
+.wb-search-item:last-child { border-bottom: none; }
+.wb-search-item:hover, .wb-search-item:active { background: var(--chip-bg); }
+.wb-search-word { font-weight: 600; color: var(--text-1); word-break: break-word; }
+.wb-search-book {
+  flex: none; font-size: 11.5px; color: var(--accent);
+  background: var(--accent-glow); padding: 2px 9px; border-radius: 999px;
+}
+.wb-search-empty { padding: 12px 13px; font-size: 12.5px; color: var(--text-3); }
+
+/* 每本单词书的目录：只列英文单词，最右边一个「发到聊天」按钮 */
+.wb-catalog {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 8px;
+}
+.wb-catalog-row { display: flex; align-items: stretch; gap: 8px; }
+.wb-catalog-item {
+  flex: 1; min-width: 0; text-align: left; padding: 13px 15px;
+  border-radius: 12px; background: var(--surface-solid); border: 1px solid var(--divider);
+  font-size: 15.5px; font-weight: 600; color: var(--text-1); word-break: break-word;
+  transition: border-color .15s, transform .15s;
+}
+.wb-catalog-item:hover { border-color: var(--accent); }
+.wb-catalog-item:active { transform: scale(.995); }
+.wb-catalog-send {
+  flex: none; width: 50px; border-radius: 12px;
+  background: var(--accent-glow); color: var(--accent);
+  border: 1px solid var(--divider); font-size: 12.5px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, transform .15s;
+}
+.wb-catalog-send:hover { background: var(--accent); color: #fff; }
+.wb-catalog-send:active { transform: scale(.95); }
+.wb-catalog-empty { text-align: center; color: var(--text-3); font-size: 13px; padding: 26px 12px; line-height: 1.8; }
+
+/* 聊天里的单词小测气泡：题目 / 填写 / 提交都在同一个气泡里 */
+.bubble.word-quiz-bubble { min-width: 230px; max-width: 320px; padding: 12px 13px; }
+.wq-head { font-size: 11.5px; color: var(--text-2); margin-bottom: 8px; }
+.wq-word { font-size: 19px; font-weight: 700; color: var(--text-1); word-break: break-word; margin-bottom: 9px; }
+.wq-senses { display: flex; flex-direction: column; gap: 7px; margin-bottom: 9px; }
+.wq-sense-line { font-size: 13.5px; color: var(--text-1); line-height: 1.6; word-break: break-word; }
+.wq-sense-line .wq-pos { color: var(--accent); font-weight: 600; margin-right: 6px; }
+.wq-inputs { display: flex; flex-direction: column; gap: 7px; }
+.wq-row { display: flex; align-items: center; gap: 6px; }
+.wq-row-pos {
+  flex: none; min-width: 48px; max-width: 76px; text-align: center;
+  font-size: 11.5px; font-weight: 600; color: var(--accent);
+  background: var(--accent-glow); padding: 8px 6px; border-radius: 9px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wq-input {
+  flex: 1; min-width: 0; box-sizing: border-box;
+  border: 1px solid var(--divider); background: var(--surface);
+  border-radius: 9px; padding: 9px 10px; font-size: 13px; color: var(--text-1);
+}
+.wq-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.wq-input.err { border-color: #e5646e; box-shadow: 0 0 0 3px rgba(229,100,110,.12); }
+.wq-submit {
+  margin-top: 10px; width: 100%; padding: 9px;
+  border-radius: 10px; background: var(--accent); color: #fff;
+  font-size: 13.5px; font-weight: 600;
+}
+.wq-submit:active { transform: scale(.98); }
+.wq-msg { margin-top: 8px; font-size: 12px; line-height: 1.6; color: var(--text-3); }
+.wq-msg.err { color: #e5646e; }
+.wq-done { margin-top: 9px; font-size: 12.5px; color: var(--accent); font-weight: 600; }
+.wq-answer { margin-top: 6px; font-size: 12.5px; color: var(--text-2); line-height: 1.65; white-space: pre-wrap; }
+
 .word-book {
   background: var(--surface-solid); border: 1px solid var(--divider);
   border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
@@ -589,13 +702,26 @@ textarea, input { font-family: inherit; }
   background: var(--accent-glow); color: var(--accent);
 }
 .wb-title { flex: 1; min-width: 0; }
-.wb-name { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-name { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; }
+.wb-name::after { content: ' ✎'; font-size: 11px; font-weight: 400; color: var(--text-3); }
+.wb-rename-input {
+  width: 100%; max-width: 100%; box-sizing: border-box;
+  border: 1px solid var(--accent); border-radius: 8px;
+  padding: 5px 9px; font-size: 14px; font-weight: 600;
+  color: var(--text-1); background: var(--surface);
+}
+.wb-rename-input:focus { outline: none; box-shadow: 0 0 0 3px var(--accent-glow); }
 .wb-sub { font-size: 12px; color: var(--text-2); margin-top: 3px; }
 .wb-bar { height: 6px; border-radius: 99px; background: var(--chip-bg); overflow: hidden; margin-top: 10px; }
 .wb-bar > i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); transition: width .3s var(--ease-out); }
-.wb-acts { display: flex; gap: 6px; margin-top: 10px; }
-.wb-acts .btn { flex: 1; padding: 8px 10px; font-size: 12.5px; min-width: 0; }
+.wb-acts { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.wb-acts .btn { flex: 1; padding: 8px 10px; font-size: 12.5px; min-width: 76px; }
 .wb-acts .btn-danger { flex: none; padding: 8px 12px; }
+/* 编辑单词书弹窗：快速追加一行 */
+.wb-quick-add { display: flex; gap: 8px; margin-top: 9px; }
+.wb-quick-add .wb-input { flex: 1; min-width: 0; padding: 9px 11px; font-size: 13.5px; }
+.wb-quick-add .btn { flex: none; padding: 9px 13px; font-size: 13px; }
+.wb-format-note { font-size: 11.5px; color: var(--text-3); line-height: 1.7; margin-top: 7px; }
 .words-empty { text-align: center; color: var(--text-3); font-size: 13px; padding: 26px 12px; line-height: 1.9; white-space: pre-line; }
 
 /* 学习 / 默写 / 完成 三种舞台 */
@@ -631,6 +757,20 @@ textarea, input { font-family: inherit; }
 }
 .wb-zh { font-size: 17px; color: var(--text-1); text-align: center; line-height: 1.75; word-break: break-word; }
 .wb-zh.empty { color: var(--text-3); font-size: 14px; }
+/* 同一个单词的多个词性：学习卡片里逐行同时显示 */
+.wb-senses { display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 360px; margin-top: 2px; }
+.wb-sense { display: flex; align-items: baseline; justify-content: center; gap: 9px; }
+.wb-sense-pos {
+  flex: none; font-size: 12.5px; font-weight: 600; color: var(--accent);
+  background: var(--accent-glow); padding: 3px 10px; border-radius: 999px;
+}
+.wb-sense-zh { font-size: 17px; color: var(--text-1); line-height: 1.7; word-break: break-word; text-align: left; }
+/* 默写页：英文只写一次，下面按词性一行一行填对应的汉语意思 */
+.wb-sense-fields { display: flex; flex-direction: column; gap: 10px; }
+.wb-sense-row { display: flex; align-items: center; gap: 9px; }
+.wb-sense-row .wb-sense-pos { min-width: 56px; text-align: center; padding: 8px 9px; }
+.wb-sense-row .wb-input { flex: 1; min-width: 0; padding: 10px 12px; font-size: 14.5px; }
+.wb-sense-row .wb-input.err { border-color: #e5646e; box-shadow: 0 0 0 3px rgba(229,100,110,.12); }
 
 .wb-actions { display: flex; gap: 8px; flex: none; margin-top: 14px; }
 .wb-actions .btn { flex: 1; padding: 12px 8px; font-size: 14px; min-width: 0; }
@@ -1975,7 +2115,7 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
     <button class="icon-btn panel-close" data-close type="button" title="关闭"></button>
   </div>
   <div class="panel-body weather-body">
-    <div class="weather-head-info">从本地添加天气照片（静态或动态都行），配上你想说的话。<br>发到聊天里后，TA 会用<b>专属天气回应字卡</b>回你 —— 那张字卡就存在字卡库里，随时能改。</div>
+    <div class="weather-head-info">从本地添加天气照片（静态或动态都行），配上你想说的话。<br>每个天气可以添加<b>多条回应字卡</b>；我发这个天气时，TA 会<b>随机抽一条</b>回你 —— 字卡也存在字卡库里，随时能改。</div>
     <button class="btn btn-primary weather-add-btn" id="btnAddWeather" type="button">＋ 从本地添加天气照片</button>
     <div class="weather-list" id="weatherList"></div>
     <div class="weather-foot">
@@ -2170,6 +2310,16 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
         <input type="number" id="surveyChance" min="0" max="100" step="5"> %
       </div>
     </div>
+    <div class="row-field">
+      <span class="label">TA 单词小测<small>开启后，TA 有概率从你添加的单词本目录里抽一个单词考你（气泡里直接作答）</small></span>
+      <label class="switch"><input type="checkbox" id="wordQuizAutoAsk"><span class="track"></span></label>
+    </div>
+    <div class="row-field" id="wordQuizChanceRow" style="display:none; flex-direction:column; align-items:stretch; gap:8px;">
+      <span class="label">抽考概率<small>每次 TA 要回复时，按这个概率改成发一道单词题</small></span>
+      <div class="delay-inputs">
+        <input type="number" id="wordQuizChance" min="0" max="100" step="5"> %
+      </div>
+    </div>
 
     <div class="section-title">TA 的反悔</div>
     <div class="row-field">
@@ -2332,14 +2482,19 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
   <div class="modal-mask" data-close-wordbook></div>
   <div class="modal-card">
     <h3 class="modal-title" id="wordBookTitle">新建单词书</h3>
-    <p class="modal-desc" id="wordBookDesc">一行一个单词，英文在前、中文在后，中间用空格或逗号隔开；词性可写可不写。</p>
+    <p class="modal-desc" id="wordBookDesc">英文单词单独一行，后面每个词性各占一行；[C]/[U] 和括号括注会自动忽略，同名单词的多个词性合成一张卡片。</p>
     <div class="field" style="margin-top:14px;">
-      <label for="wordBookName">单词书名字</label>
+      <label for="wordBookName">单词书名字（可自由修改）</label>
       <input type="text" id="wordBookName" maxlength="30" placeholder="比如：四级核心词" autocomplete="off">
     </div>
     <div class="field" id="wordBookPasteWrap">
-      <label for="wordBookInput">单词内容</label>
-      <textarea id="wordBookInput" rows="7" placeholder="abandon  v. 放弃&#10;ability   n. 能力&#10;abroad   adv. 在国外&#10;&#10;也支持逗号分隔：ability,n. 能力"></textarea>
+      <label for="wordBookInput">单词内容（可自由添加、修改、删除）</label>
+      <div class="wb-quick-add" id="wordBookQuickWrap">
+        <input type="text" class="wb-input" id="wordBookQuickInput" placeholder="例：n. 进步,进展" autocomplete="off">
+        <button class="btn btn-ghost" id="wordBookQuickAdd" type="button">＋ 添到列表</button>
+      </div>
+      <textarea id="wordBookInput" rows="9" placeholder="calorie&#10;n. [C] (热量单位) 卡，卡路里&#10;&#10;campaign&#10;n. [C] 运动；活动&#10;vt.&amp;vi. 参加运动&#10;&#10;celebrate&#10;vt.&amp;vi. 庆祝；庆贺&#10;vt. 颂扬；赞美&#10;celebration&#10;n. 庆祝；颂扬"></textarea>
+      <div class="wb-format-note">英文单词单独一行，下面每个词性一行；词条之间空行可有可无。[C] / [U]、(括注) 会自动忽略，不算要默写的意思；多个意思用逗号、分号或顿号隔开都行。旧格式「advance vt. 促进,推动」仍然支持。</div>
       <div class="wb-msg" id="wordBookPasteHint"></div>
     </div>
     <div class="field" id="wordBookPreviewWrap" style="display:none;">
@@ -2557,6 +2712,8 @@ body[data-theme="dark"] .dedupe-item .di-del { color: #e2ac53; }
        surveys: [ { id, question, options:[{id,text}], createdAt } ],  问卷库
        messages: [ { id, role:'me'|'ta', text, ts, cardId? } ],
                  问卷消息：{ type:'survey', question, options(快照), answer:null|{optionId,text,by,ts} }
+                 单词小测：{ type:'wordQuiz', wordEn, wordSenses(快照), direction:'en2zh'|'zh2en', answer:null|{by,ts,values} }
+                 目录发词：普通文字消息（只显示英文），附 wordCard / wordEn / wordSenses 快照
        deckQueue: [cardId],    洗牌策略的抽取队列
        welcomed: true          首次欢迎语标记
      }
@@ -2874,6 +3031,10 @@ const Store = {
           autoAsk: false,
           chance: 0.15,            // 触发概率（0~1）
         },
+        wordQuiz: {                // 单词小测：TA 偶尔从单词本目录抽一个单词考你
+          autoAsk: true,
+          chance: 0.12,            // 触发概率（0~1）
+        },
         weather: {                 // TA 主动发天气
           taSend: true,
           chance: 0.06,            // 概率（0~1），刻意调小：天气是偶尔的小惊喜
@@ -2897,7 +3058,7 @@ const Store = {
       cards: DEFAULT_CARDS.map((text, i) => ({ id: uid() + '-' + i, text, createdAt: Date.now() - (DEFAULT_CARDS.length - i) * 60000 })),
       groups: [],                  // 分组：[{ id, name, createdAt }]
       cardUses: {},
-      weather: [],                  // 天气：[{ id, dataUrl, name, cardId, createdAt, animated }]
+      weather: [],                  // 天气：[{ id, dataUrl, name, cardId, cardIds:[回应字卡id], createdAt, animated }]
       weatherGroupId: null,         // 字卡库里「天气回应」分组的 id
       stickers: [],                 // 表情包：[{ id, dataUrl, name, createdAt, category? }]
       stickerGroups: [],            // 表情包分组：[{ id, name, createdAt, muted }]
@@ -2944,6 +3105,15 @@ const Store = {
     // 兼容旧数据：给没有 category 字段的表情包补上默认值
     if (Array.isArray(this.state.stickers)) {
       this.state.stickers.forEach(s => { if (s.category === undefined) s.category = null; });
+    }
+    // 兼容旧数据：老天气只有一张 cardId；统一补成 cardIds 数组（多条回应字卡）
+    if (Array.isArray(this.state.weather)) {
+      this.state.weather.forEach(w => {
+        if (!Array.isArray(w.cardIds)) w.cardIds = w.cardId ? [w.cardId] : [];
+        w.cardIds = [...new Set(w.cardIds.filter(Boolean))];
+        if (w.cardId && !w.cardIds.includes(w.cardId)) w.cardIds.unshift(w.cardId);
+        if (!w.cardId || !w.cardIds.includes(w.cardId)) w.cardId = w.cardIds[0] || null;
+      });
     }
     // 兼容旧数据：补单词书字段（背单词板块）
     if (!Array.isArray(this.state.wordBooks)) this.state.wordBooks = [];
@@ -3097,6 +3267,14 @@ const Store = {
     return g;
   },
 
+  /** 一个天气的全部回应字卡 id（兼容旧数据里只有 cardId 的情况，去重） */
+  weatherCardIds(w) {
+    if (!w) return [];
+    const ids = Array.isArray(w.cardIds) ? w.cardIds.slice() : (w.cardId ? [w.cardId] : []);
+    if (w.cardId && !ids.includes(w.cardId)) ids.unshift(w.cardId);
+    return [...new Set(ids.filter(Boolean))];
+  },
+
   addWeather({ dataUrl, name, animated }) {
     const g = this.ensureWeatherGroup();
     const label = (name || '').trim().slice(0, 30) || '今天的天气';
@@ -3107,7 +3285,8 @@ const Store = {
       id: uid(),
       dataUrl,
       name: label,
-      cardId: card.id,
+      cardId: card.id,          // 兼容旧字段：指向第一张回应字卡
+      cardIds: [card.id],       // 这个天气的所有回应字卡，可继续自由添加
       animated: !!animated,
       createdAt: Date.now(),
     };
@@ -3120,11 +3299,24 @@ const Store = {
 
   getWeather(id) { return (this.state.weather || []).find(w => w.id === id) || null; },
 
-  /** 天气对应的专属回应字卡（可能被用户在字卡库里删掉了，返回 null） */
-  getWeatherCard(id) {
+  /** 这个天气的全部回应字卡；被用户在字卡库里删掉的会自动跳过 */
+  getWeatherCards(id) {
     const w = this.getWeather(id);
-    if (!w || !w.cardId) return null;
-    return this.state.cards.find(c => c.id === w.cardId) || null;
+    if (!w) return [];
+    const map = new Map(this.state.cards.map(c => [c.id, c]));
+    const out = [];
+    this.weatherCardIds(w).forEach(cid => { const c = map.get(cid); if (c) out.push(c); });
+    return out;
+  },
+
+  /** 兼容旧调用：返回第一张回应字卡（没有则 null） */
+  getWeatherCard(id) { return this.getWeatherCards(id)[0] || null; },
+
+  /** 我发这个天气时：从它的回应字卡里随机抽一条回复 */
+  pickWeatherCard(id) {
+    const cards = this.getWeatherCards(id);
+    if (!cards.length) return null;
+    return cards[Math.floor(Math.random() * cards.length)];
   },
 
   updateWeather(id, patch = {}) {
@@ -3137,44 +3329,73 @@ const Store = {
     return w;
   },
 
-  /** 更新（或补建）天气的专属回应字卡 */
-  updateWeatherCardText(id, text) {
+  /** 给这个天气新增一条回应字卡（同时存入字卡库「天气回应」分组） */
+  addWeatherCard(id, text) {
+    const w = this.getWeather(id);
+    if (!w) return null;
+    const g = this.ensureWeatherGroup();
+    const card = { id: uid() + '-w', text: String(text == null ? '' : text).trim(), createdAt: Date.now(), category: g.id };
+    this.state.cards.push(card);
+    const ids = this.weatherCardIds(w);
+    ids.push(card.id);
+    w.cardIds = [...new Set(ids)];
+    if (!w.cardId) w.cardId = card.id;
+    this.save();
+    Bus.emit('cards:add', { cards: [card] });
+    Bus.emit('weather:update', { weather: w });
+    return card;
+  },
+
+  /** 修改某条回应字卡；不传 cardId 时改第一张，一张都没有就补建一张（兼容旧行为） */
+  updateWeatherCardText(id, text, cardId) {
     const w = this.getWeather(id);
     if (!w) return null;
     const t = String(text == null ? '' : text);
-    let card = this.getWeatherCard(id);
-    if (!card) {
-      // 字卡被删过：重新补一张，放回「天气回应」分组
-      const g = this.ensureWeatherGroup();
-      card = { id: uid() + '-w', text: t, createdAt: Date.now(), category: g.id };
-      this.state.cards.push(card);
-      w.cardId = card.id;
-      Bus.emit('cards:add', { cards: [card] });
+    let card;
+    if (cardId) {
+      card = this.state.cards.find(c => c.id === cardId && this.weatherCardIds(w).includes(cardId));
+      if (!card) return null;   // 指定的这张刚被删掉（例如点了删除）：静默跳过，避免误补一张
     } else {
-      card.text = t;
-      Bus.emit('cards:update', { card });
+      card = this.getWeatherCards(id)[0];
+      if (!card) return this.addWeatherCard(id, t);   // 兼容旧行为：一张都没有就补一张
     }
+    card.text = t;
+    this.save();
+    Bus.emit('cards:update', { card });
+    Bus.emit('weather:update', { weather: w });
+    return card;
+  },
+
+  /** 删除某条回应字卡（从天气的字卡列表与字卡库里一起移除） */
+  removeWeatherCard(id, cardId) {
+    const w = this.getWeather(id);
+    if (!w) return null;
+    const ids = this.weatherCardIds(w);
+    if (!ids.includes(cardId)) return null;
+    w.cardIds = ids.filter(x => x !== cardId);
+    if (w.cardId === cardId) w.cardId = w.cardIds[0] || null;
+    const card = this.removeCard(cardId);
     this.save();
     Bus.emit('weather:update', { weather: w });
     return card;
   },
 
-  /** 删除一个天气（默认连同它的专属回应字卡一起删） */
+  /** 删除一个天气（默认连同它的全部回应字卡一起删） */
   removeWeather(id, keepCard = false) {
     const list = this.state.weather || [];
     const idx = list.findIndex(w => w.id === id);
     if (idx < 0) return null;
     const [w] = list.splice(idx, 1);
-    if (!keepCard && w.cardId) this.removeCard(w.cardId);
+    if (!keepCard) this.weatherCardIds(w).forEach(cid => this.removeCard(cid));
     this.save();
     Bus.emit('weather:remove', { weather: w });
     return w;
   },
 
-  /** 清空全部天气（连同各自的专属回应字卡） */
+  /** 清空全部天气（连同各自的全部回应字卡） */
   clearWeather(keepCards = false) {
     const list = (this.state.weather || []).slice();
-    if (!keepCards) list.forEach(w => { if (w.cardId) this.removeCard(w.cardId); });
+    if (!keepCards) list.forEach(w => this.weatherCardIds(w).forEach(cid => this.removeCard(cid)));
     this.state.weather = [];
     this.save();
     Bus.emit('weather:clear', { list });
@@ -4063,6 +4284,9 @@ const Chat = {
     } else if (msg.type === 'survey') {
       // 问卷消息：气泡里是问题 + 只能点的预设选项
       this.buildSurveyBubble(bubble, msg);
+    } else if (msg.type === 'wordQuiz') {
+      // 单词小测：题目 / 输入框 / 提交都在同一个气泡里
+      WordQuiz.buildBubble(bubble, msg);
     } else if (msg.type === 'weather') {
       // 天气消息：气泡里是天气图 + 配文（动图会保留动画）
       bubble.className = 'bubble weather-bubble';
@@ -4242,7 +4466,7 @@ const Chat = {
     return target;
   },
 
-  /** 发一个天气到聊天里；by='me' 时会触发 TA 的专属天气回应字卡 */
+  /** 发一个天气到聊天里；by='me' 时 TA 会从这个天气的回应字卡里随机抽一条回复 */
   sendWeather(weatherId, by = 'me') {
     const w = Store.getWeather(weatherId);
     if (!w) { UI.toast('这个天气已经不在了'); return null; }
@@ -4255,7 +4479,7 @@ const Chat = {
     });
     Bus.emit('chat:send', { msg });
     if (by !== 'ta') {
-      const card = Store.getWeatherCard(w.id);
+      const card = Store.pickWeatherCard(w.id);   // 从这个天气的回应字卡里随机抽一条
       if (card) this.requestReply({ ...card, __weatherId: w.id });
       else this.requestReply(null);
     }
@@ -5071,6 +5295,11 @@ const Chat = {
         await this.taAnswerSurvey(forced.__surveyMsgId);
         continue;
       }
+      if (forced && forced.__wordMsgId) {
+        // 我发了一个英文单词：TA 用单词本里的内容逐行回答词性与汉语意思
+        await WordQuiz.taAnswerWord(forced.__wordMsgId);
+        continue;
+      }
       if (!forced) {
         // 天气：TA 偶尔从你添加的天气里挑一个发给你（概率刻意很小）
         const wSet = Store.state.settings.weather || {};
@@ -5098,6 +5327,18 @@ const Chat = {
           this.hideTyping();
           const sv = Store.pickRandomSurvey();
           if (sv) { this.sendSurveyAsTa(sv); continue; }
+        }
+        // 单词小测：TA 偶尔从单词本目录里抽一个单词考你（概率在设置里调）
+        const wqSet = Store.state.settings.wordQuiz || {};
+        if (wqSet.autoAsk !== false && WordQuiz.allEntries().length
+            && Date.now() - WordQuiz.lastQuizTs > 20000
+            && Math.random() < (wqSet.chance != null ? wqSet.chance : 0.12)) {
+          const qDelay = this.calcReplyDelay('我考你一个单词吧');
+          this.showTyping();
+          await sleep(qDelay);
+          this.hideTyping();
+          const quiz = WordQuiz.sendAsTa();
+          if (quiz) continue;
         }
         const sp = Store.state.settings.spliced;
         if (sp && sp.enabled && Math.random() < (sp.chance != null ? sp.chance : 0.3) * Skills.factor('cards')) {
@@ -6336,8 +6577,9 @@ const Age = {
 };
 
 /* ========================= 七·八、天气板块 Weather =========================
-   从本地添加天气照片（静态 / 动态都支持）→ 配一句文字 → 发到聊天里触发 TA 的专属回应。
-   每个天气在字卡库里都有一张「专属回应字卡」，可在天气板块直接改，也可以在字卡库里改。
+   从本地添加天气照片（静态 / 动态都支持）→ 配一句文字 → 发到聊天里触发 TA 的回应。
+   每个天气可以有多条「回应字卡」（存在字卡库「天气回应」分组），可在天气板块
+   自由增删改，也可以在字卡库里改；我发这个天气时，TA 会从中随机抽一条回我。
    TA 也会偶尔（概率很小）从你添加的天气里挑一个发给你。
 ========================================================================== */
 
@@ -6369,11 +6611,12 @@ const Weather = {
     Bus.on('weather:add', () => { this.render(); this.syncFoot(); });
     Bus.on('weather:remove', () => { this.render(); this.syncFoot(); });
     Bus.on('weather:clear', () => { this.render(); this.syncFoot(); });
-    Bus.on('weather:update', () => this.render());
+    Bus.on('weather:update', () => { if (!this._suspendRender) this.render(); });
     Bus.on('data:imported', () => { this.render(); this.syncFoot(); });
     Bus.on('chat:clear', () => { this.render(); this.syncFoot(); });
-    // 字卡库里删掉了专属回应字卡 → 天气面板同步显示「已删除」
-    Bus.on('cards:remove', () => this.render());
+    // 字卡库里编辑 / 删除了回应字卡 → 天气面板同步；正在本面板输入时先跳过，避免打断编辑
+    Bus.on('cards:update', () => { if (!this._suspendRender) this.render(); });
+    Bus.on('cards:remove', () => { if (!this._suspendRender) this.render(); });
 
     this.render();
     this.syncFoot();
@@ -6459,7 +6702,7 @@ const Weather = {
     if (!all.length) {
       const empty = document.createElement('div');
       empty.className = 'weather-empty';
-      empty.textContent = '还没有天气。\n点上方按钮从本地添加一张照片，\n可以是静态的，也可以是会动的 —— \n再给它写一句话，就能发到聊天里。';
+      empty.textContent = '还没有天气。\n点上方按钮从本地添加一张照片，\n可以是静态的，也可以是会动的 —— \n再给它写几张回应字卡，就能发到聊天里。';
       list.appendChild(empty);
       return;
     }
@@ -6489,29 +6732,85 @@ const Weather = {
       nameInput.placeholder = '给这个天气起个名字';
       this.bindSave(nameInput, v => {
         if (!String(v).trim()) { UI.toast('名字不能为空'); nameInput.value = w.name; return; }
-        Store.updateWeather(w.id, { name: String(v).trim() });
+        this.suspendRender(() => Store.updateWeather(w.id, { name: String(v).trim() }));
       });
       fields.appendChild(nameInput);
 
-      const card = Store.getWeatherCard(w.id);
-      const cardInput = document.createElement('textarea');
-      cardInput.className = 'weather-card-input';
-      cardInput.value = card ? card.text : '';
-      cardInput.placeholder = 'TA 收到这个天气时，会回你这一句…';
-      this.bindSave(cardInput, v => {
-        const t = String(v).trim();
-        if (!t) { UI.toast('回应不能为空'); cardInput.value = card ? card.text : ''; return; }
-        Store.updateWeatherCardText(w.id, t);
-      });
-      fields.appendChild(cardInput);
-
-      const hint = document.createElement('div');
-      hint.className = 'wi-label';
-      hint.textContent = card ? '🌤 专属回应已存入字卡库' : '🌤 专属回应字卡已被删除，改上面的文字即可补一张';
-      fields.appendChild(hint);
+      const nameHint = document.createElement('div');
+      nameHint.className = 'wi-label';
+      nameHint.textContent = '🌤 天气名字';
+      fields.appendChild(nameHint);
 
       top.appendChild(fields);
       item.appendChild(top);
+
+      /* ---- 回应字卡：可自由增删，我发这个天气时 TA 随机抽一条 ---- */
+      const cardsBox = document.createElement('div');
+      cardsBox.className = 'wi-cards';
+      const cards = Store.getWeatherCards(w.id);
+
+      const head = document.createElement('div');
+      head.className = 'wi-cards-head';
+      const title = document.createElement('div');
+      title.className = 'wi-cards-title';
+      title.textContent = '回应字卡（' + cards.length + '）';
+      const note = document.createElement('div');
+      note.className = 'wi-cards-note';
+      note.textContent = '我发时随机抽一条';
+      head.appendChild(title);
+      head.appendChild(note);
+      cardsBox.appendChild(head);
+
+      if (!cards.length) {
+        const emptyCards = document.createElement('div');
+        emptyCards.className = 'wi-cards-empty';
+        emptyCards.textContent = '还没有回应字卡，点下面的按钮加一条吧（也可以在字卡库里编辑）。';
+        cardsBox.appendChild(emptyCards);
+      }
+
+      cards.forEach(card => {
+        const row = document.createElement('div');
+        row.className = 'wi-card-row';
+        row.dataset.cardId = card.id;
+
+        const ta = document.createElement('textarea');
+        ta.className = 'weather-card-input';
+        ta.value = card.text;
+        ta.placeholder = 'TA 可能会回你这一句…';
+        this.bindSave(ta, v => {
+          const t = String(v).trim();
+          if (!t) { UI.toast('回应不能为空'); ta.value = card.text; return; }
+          this.suspendRender(() => Store.updateWeatherCardText(w.id, t, card.id));
+        });
+        row.appendChild(ta);
+
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'wi-card-del';
+        del.title = '删除这条回应字卡';
+        del.setAttribute('aria-label', '删除这条回应字卡');
+        del.textContent = '×';
+        del.addEventListener('click', () => this.removeCard(w.id, card.id));
+        row.appendChild(del);
+
+        cardsBox.appendChild(row);
+      });
+
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'wi-card-add';
+      add.textContent = '＋ 添加回应字卡';
+      add.addEventListener('click', () => this.addCard(w.id));
+      cardsBox.appendChild(add);
+
+      const hint = document.createElement('div');
+      hint.className = 'wi-label';
+      hint.textContent = cards.length
+        ? '🌤 已存入字卡库「天气回应」分组，也能在字卡库里改'
+        : '🌤 添加后会存入字卡库「天气回应」分组';
+      cardsBox.appendChild(hint);
+
+      item.appendChild(cardsBox);
 
       const acts = document.createElement('div');
       acts.className = 'wi-actions';
@@ -6533,6 +6832,53 @@ const Weather = {
     });
   },
 
+  /** 编辑保存时临时挂起面板重渲染，避免输入框被重建、打断连续输入 */
+  suspendRender(fn) {
+    this._suspendRender = true;
+    try { return fn(); } finally { this._suspendRender = false; }
+  },
+
+  /** 给某个天气加一条回应字卡（默认填一句模板，添加后可直接改） */
+  addCard(weatherId) {
+    const w = Store.getWeather(weatherId);
+    if (!w) return;
+    const tpl = WEATHER_CARD_TEMPLATES[Math.floor(Math.random() * WEATHER_CARD_TEMPLATES.length)];
+    const card = Store.addWeatherCard(weatherId, tpl.replace(/%W%/g, w.name || '今天的天气'));
+    if (!card) return;
+    requestAnimationFrame(() => {
+      const el = $('#weatherList .weather-item[data-weather-id="' + weatherId + '"] .wi-card-row[data-card-id="' + card.id + '"] textarea');
+      if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+    });
+  },
+
+  /** 删掉某个天气的一条回应字卡（可撤销） */
+  removeCard(weatherId, cardId) {
+    const w = Store.getWeather(weatherId);
+    if (!w) return;
+    const before = Store.weatherCardIds(w).slice();
+    const card = Store.removeWeatherCard(weatherId, cardId);
+    if (!card) return;
+    UI.toast('已删除一条回应字卡', {
+      action: {
+        label: '撤销',
+        onClick: () => {
+          const ww = Store.getWeather(weatherId);
+          if (!ww) return;
+          if (!Store.state.cards.some(c => c.id === card.id)) Store.state.cards.push(card);
+          const ids = Store.weatherCardIds(ww);
+          const at = before.indexOf(cardId);
+          ids.splice(at < 0 ? ids.length : Math.min(at, ids.length), 0, card.id);
+          ww.cardIds = [...new Set(ids)];
+          if (!ww.cardId || !ww.cardIds.includes(ww.cardId)) ww.cardId = ww.cardIds[0] || null;
+          Store.save();
+          Bus.emit('cards:add', { cards: [card] });
+          Bus.emit('weather:update', { weather: ww });
+          UI.toast('已恢复');
+        },
+      },
+    });
+  },
+
   /** 输入防抖保存（400ms），避免每敲一个字都写盘 */
   bindSave(el, onSave) {
     let timer = null;
@@ -6543,6 +6889,7 @@ const Weather = {
     });
     el.addEventListener('blur', () => {
       clearTimeout(timer);
+      if (!el.isConnected) return;   // 元素已被移除（例如刚点了删除），别再补存
       onSave(el.value);
     });
   },
@@ -6571,13 +6918,13 @@ const Weather = {
     const w = Store.getWeather(id);
     if (!w) return;
     Store.removeWeather(id);
-    UI.toast('已删除「' + (w.name || '天气') + '」，专属回应字卡也一并删除');
+    UI.toast('已删除「' + (w.name || '天气') + '」，回应字卡也一并删除');
   },
 
   async clearAll() {
     const n = (Store.state.weather || []).length;
     if (!n) { UI.toast('还没有添加天气'); return; }
-    const ok = await UI.confirm({ title: '清空所有天气？', desc: '会删除全部 ' + n + ' 个天气及其专属回应字卡（聊天记录里已发出的不受影响）。', confirmText: '清空' });
+    const ok = await UI.confirm({ title: '清空所有天气？', desc: '会删除全部 ' + n + ' 个天气及其回应字卡（聊天记录里已发出的不受影响）。', confirmText: '清空' });
     if (!ok) return;
     Store.clearWeather();
     UI.toast('已清空天气');
@@ -6585,9 +6932,24 @@ const Weather = {
 };
 
 /* ========================= 七·九、背单词板块 Words =========================
-   玩法：从本地导入单词书（.txt / .csv / .json，一行一个单词）→
+   玩法：从本地导入 / 手动新建 / 随时编辑单词书 →
    顺着书里的顺序，先「看」单词（英文 + 词性 + 汉语意思），点「记住了」
    进入默写页（输入英文与汉语），两者都对才进入下一个单词。
+
+   新规则：
+     · 词典式粘贴：英文单词单独一行，下面每个词性一行；词条间空行可有可无
+       （calorie / n. [C] (热量单位) 卡，卡路里 / campaign / n. … / vt.&vi. …）
+     · [C]/[U] 与括号括注自动忽略；词性行后的汉字行算上一词性的释义续行
+     · 旧的「一行一个词性」格式（advance vt. 促进,推动）继续支持
+     · 全书英文名相同的词性行自动归成一组：学习卡片里同时显示这个单词的所有词性
+     · 默写时英文只填一次，下面按词性逐行填各自对应的汉语意思
+     · 汉语意思只认汉字，多个意思用逗号/分号/顿号隔开；顺序不限，但每个都要写全
+     · 每本书的名字点一下就能改，「编辑」里可自由增删改任意单词
+     · 书库搜索框跨所有单词本查单词/释义，结果标出来自哪一本，点一下直接学
+     · 每本书有「目录」：只列英文单词（不显示词性与释义），点一个直接进学习页
+     · 从目录/搜索结果进入用临时焦点定位，不改已保存的背诵进度
+     · 目录里每个单词右侧的「发」：只把英文单词发到聊天，TA 逐行回答词性与汉语意思
+     · TA 也会偶尔（设置里可调概率）从所有目录里抽一词考你，气泡里直接填、答错原地重填
    -------------------------------------------------------------------------- */
 
 const WORDS_MAX = 20000;  // 单本单词书上限（性能守卫，存储容量已不再是瓶颈）
@@ -6600,96 +6962,287 @@ function mkEl(tag, cls, text) {
   return e;
 }
 
-/* ---------- 单词解析：把一行文本拆成 { en, pos, zh } ---------- */
+/* ---------- 单词解析：把一行文本拆成 { en, pos, zh } ----------
+   新规则：
+     · 一个词性单独一行：advance vt. 促进,推动 / advance n. 进步,进展
+     · 后续行可省略英文，只写「n. 进步,进展」，自动沿用上一行的英文
+     · 汉语意思只认汉字，多个意思用逗号隔开（英文字母、标点、空格一律忽略）
+-------------------------------------------------------------------------- */
 
 const WORD_POS_RE = new RegExp(
   '^(?:' +
-    '(' + ['n', 'v', 'vt', 'vi', 'adj', 'adv', 'prep', 'conj', 'pron', 'num', 'art', 'int', 'aux', 'pl', 'abbr'].join('|') + ')\\.' +   // n. / v. / adj.
+    '(' + ['n', 'v', 'vt', 'vi', 'adj', 'adv', 'prep', 'conj', 'pron', 'num', 'art', 'int', 'aux', 'pl', 'abbr'].join('|') + ')\\.' +
     '|' +
-    '((?:n|v|vt|vi|adj|adv|prep|conj|pron|num|art|int)(?![A-Za-z]))' +                                                                 // n / v（不写成点的形式）
+    '((?:n|v|vt|vi|adj|adv|prep|conj|pron|num|art|int)(?![A-Za-z]))' +
     '|' +
-    '(名词|动词|形容词|副词|介词|连词|代词|数词|感叹词|助动词|及物动词|不及物动词|量词)' +                                                  // 中文词性
+    '(名词|动词|形容词|副词|介词|连词|代词|数词|感叹词|助动词|及物动词|不及物动词|量词)' +
   ')\\s*[.。、:：]?\\s*(.*)$', 'i');
 
-const HAS_CJK = /[\u3400-\u9fff]/;
-const hasCJK = s => HAS_CJK.test(String(s || ''));
+const POS_CN_SET = new Set(['名词','动词','形容词','副词','介词','连词','代词','数词','感叹词','助动词','及物动词','不及物动词','量词']);
+const POS_ABBR_RE = /^(?:n|v|vt|vi|adj|adv|prep|conj|pron|num|art|int|aux|pl|abbr)$/i;
 
-/** 单独一格是不是词性（n. / adj. / 名词 …） */
-function isPosToken(s) {
-  const t = String(s == null ? '' : s).trim();
-  if (!t) return false;
-  return /^(?:n|v|vt|vi|adj|adv|prep|conj|pron|num|art|int|aux|pl|abbr)\.$/i.test(t)
-    || /^(?:名词|动词|形容词|副词|介词|连词|代词|数词|感叹词|助动词|及物动词|不及物动词|量词)$/.test(t);
+const HAS_CJK = /[\u3400-\u9fff\uF900-\uFAFF]/;
+const hasCJK = s => HAS_CJK.test(String(s || ''));
+/**
+ * 词典里的注释不是「汉语意思」，提取汉字前先丢掉：
+ *   [C] / [U] 等可数性标记、(热量单位) 这类括注、（）【】里的说明
+ */
+function stripGlossNotes(s) {
+  return String(s == null ? '' : s)
+    .replace(/\[[^\]\n]*\]/g, ' ')
+    .replace(/\([^)\n]*\)/g, ' ')
+    .replace(/（[^）\n]*）/g, ' ')
+    .replace(/【[^】\n]*】/g, ' ');
+}
+/** 只保留汉字：注释、英文字母、数字、标点、空白全部丢掉 */
+function hanOnly(s) { return stripGlossNotes(s).replace(/[^\u3400-\u9fff\uF900-\uFAFF]/g, ''); }
+
+/** 把一个片段认成词性，返回规范写法（n. / vt. / 及物动词 …）；不是词性返回 null */
+function normPosToken(s) {
+  const t = String(s == null ? '' : s).trim().replace(/[.,，、:：;；]+$/, '').trim();
+  if (!t) return null;
+  if (POS_ABBR_RE.test(t)) return t.toLowerCase() + '.';
+  if (POS_CN_SET.has(t)) return t;
+  return null;
 }
 
-/** 把「n. 能力」拆成 { pos:'n.', rest:'能力' }；不像词性则返回 null */
+/** 单独一格是不是词性（n. / adj. / 名词 …；保留旧接口） */
+function isPosToken(s) { return !!normPosToken(s); }
+
+/** 把「n. 能力」「及物动词:促进」拆成 { pos, rest }；不像词性返回 null（保留旧接口） */
 function splitWordPos(s) {
   const t = String(s == null ? '' : s).trim();
   if (!t) return null;
   const m = t.match(WORD_POS_RE);
   if (!m) return null;
-  const abbr = m[1], latin = m[2], cn = m[3];
-  const pos = abbr ? abbr + '.' : (latin || cn || '').trim();
+  const pos = m[1] ? m[1] + '.' : (m[2] || m[3] || '').trim();
   return { pos: pos.trim(), rest: (m[4] || '').trim() };
 }
 
-/** 解析一行：支持 tab / 逗号 / 空格分隔，英文在前、中文在后，词性可省略 */
+/** 汉语意思规范化：按逗号/分号等分隔，每项只留汉字，去重后用逗号拼回去 */
+function cleanZh(s) {
+  const parts = [];
+  String(s == null ? '' : s)
+    .split(/[,，;；、|｜\/／\n\r]+/)
+    .map(hanOnly)
+    .filter(Boolean)
+    .forEach(p => { if (!parts.includes(p)) parts.push(p); });
+  return parts.join(',');
+}
+
+/** 把一行拆成 token，记住词与词之间原本是不是用逗号隔开的（逗号=两个意思的分界） */
+function tokenizeLine(raw) {
+  const toks = [];
+  raw.split(' ').filter(Boolean).forEach(cell => {
+    const subs = cell.split(',').filter(Boolean);
+    subs.forEach((s, i) => toks.push({ text: s, commaAfter: i < subs.length - 1 }));
+  });
+  return toks;
+}
+
+/** 解析一行；en 为 null 表示「只有词性+意思」，由 parseWordsText 继承上一行的英文 */
 function parseWordLine(line) {
   let raw = String(line == null ? '' : line).trim();
   if (!raw || raw.charAt(0) === '#') return null;
   raw = raw.replace(/^\(?\d+[\.、)）:：]\s*/, '').trim();   // 去掉行首序号：1. / 1、/ 1)
   if (!raw) return null;
 
-  let cells = [];
-  if (raw.indexOf('\t') >= 0) cells = raw.split('\t');
-  else if (/\s/.test(raw)) cells = raw.split(/\s{2,}|\s+/);
-  else cells = raw.split(/[,，;；｜|]/);
-  cells = cells.map(s => String(s || '').trim()).filter(Boolean);
-  if (cells.length < 2) return null;
-  // 英文格里混进了逗号分隔的词性时，再拆一次：「ability,n. 能力」→ ability / n. / 能力
-  if (/[,，;；｜|]/.test(cells[0])) {
-    const sub = cells[0].split(/[,，;；｜|]/).map(s => s.trim()).filter(Boolean);
-    if (sub.length) cells = sub.concat(cells.slice(1));
-  }
+  // 所有意思分隔符统一成英文逗号，空白统一成单空格
+  raw = raw.replace(/[,，;；、｜|／\/]+/g, ',').replace(/\s+/g, ' ').trim();
+  raw = raw.replace(/,\s+/g, ',').replace(/\s+,/g, ',').replace(/,+/g, ',').replace(/^,|,$/g, '');
+  if (!raw) return null;
 
-  let en = '', rest = [];
-  // 找到英文片段的起点：通常第一格就是；中文在前时，挑第一个纯英文格
-  let start = 0;
-  if (hasCJK(cells[0]) || !/[A-Za-z]/.test(cells[0])) {
-    start = cells.findIndex((c, i) => i > 0 && !hasCJK(c) && /[A-Za-z]/.test(c));
-    if (start < 0) return null;
+  const toks = tokenizeLine(raw);
+  if (!toks.length) return null;
+
+  // 「n.能力」「及物动词:促进」这种词性和意思粘在一起的，先拆出词性前缀
+  const expanded = [];
+  toks.forEach(t => {
+    const p = splitWordPos(t.text);
+    if (p && p.rest && hasCJK(p.rest)) {
+      expanded.push({ text: p.pos, commaAfter: false });
+      expanded.push({ text: p.rest, commaAfter: t.commaAfter });
+    } else {
+      expanded.push(t);
+    }
+  });
+
+  // 找第一个「汉语意思」片段；词性（含中文词性）不算
+  let k = -1;
+  for (let i = 0; i < expanded.length; i++) {
+    const t = expanded[i].text;
+    if (isPosToken(t) || !hasCJK(t)) continue;
+    k = i; break;
   }
-  // 短语（make up / take off）连续的非中文片段都算进英文，遇到词性就停
-  let end = start;
-  while (end + 1 < cells.length && !isPosToken(cells[end + 1]) && !hasCJK(cells[end + 1]) && /^[A-Za-z][A-Za-z\-'.]*$/.test(cells[end + 1])) end++;
-  en = cells.slice(start, end + 1).join(' ');
-  rest = cells.filter((_, i) => i < start || i > end);
+  if (k < 0) return null;                  // 没有汉字释义的词无法默写校验
+
+  // 汉字区之前：英文片段拼成 en，词性单独记
+  let en = '', pos = '';
+  for (let i = 0; i < k; i++) {
+    const t = expanded[i].text;
+    if (isPosToken(t)) { pos = normPosToken(t); continue; }
+    if (/[A-Za-z]/.test(t)) en += (en ? ' ' : '') + t;
+  }
   en = en.replace(/^[^A-Za-z0-9]+/, '').trim();
-  if (!en) return null;
 
-  let pos = '', zh = '';
-  const p = splitWordPos(rest.join(' '));
-  if (p) { pos = p.pos; zh = p.rest; } else { zh = rest.join(' '); }
-  zh = String(zh || '').trim();
-  if (!zh) return null;                       // 没有释义的词无法默写校验，跳过
-  return { en, pos: pos || '', zh };
+  // 汉字区拼回原文（保留逗号信息）再规范化
+  let zhRaw = '';
+  for (let i = k; i < expanded.length; i++) {
+    const t = expanded[i];
+    zhRaw += t.text;
+    if (t.commaAfter) zhRaw += ',';
+    else if (i < expanded.length - 1) zhRaw += ' ';
+  }
+  const zh = cleanZh(zhRaw);
+  if (!zh) return null;                  // 没有汉字释义的词不录入（默写只认汉字）
+  return { en: en || null, pos: pos || '', zh };
+}
+
+/** 把逐行结果里的「省略英文」补上（沿用上一个英文单词） */
+function fillInheritedEn(list) {
+  const out = [];
+  let lastEn = '';
+  for (const w of list) {
+    if (!w) continue;
+    let en = w.en;
+    if (!en) { if (!lastEn) continue; en = lastEn; }
+    else lastEn = en;
+    out.push({ en, pos: w.pos || '', zh: w.zh });
+    if (out.length >= WORDS_MAX) break;
+  }
+  return out;
+}
+
+/* ---------- 词典式粘贴格式 ----------
+   英文单词单独占一行，后面每个词性各占一行；条目之间可空行，也可不空行。
+     calorie
+     n. [C] (热量单位) 卡，卡路里
+
+     campaign
+     n. [C] 运动；活动
+     vt.&vi. 参加运动
+   · [C] / [U]、括号里的括注都会被忽略，不算必须默写的汉语意思
+   · 词性行后面若还有不含词性的汉字行，视为上一个词性的释义续行
+   · 复合词性（vt.&vi.）、中文词性照样认；旧的「一行一个词性」格式继续支持
+-------------------------------------------------------------------------- */
+
+const POS_ATOM = '(?:vt|vi|adj|adv|prep|conj|pron|num|art|int|aux|pl|abbr|n|v)(?![A-Za-z])';
+const POS_LEAD_RE = new RegExp(
+  '^\\s*(' +
+    POS_ATOM + '\\.?\\s*(?:&\\s*' + POS_ATOM + '\\.?\\s*)*' +
+    '|(?:名词|动词|形容词|副词|介词|连词|代词|数词|感叹词|助动词|及物动词|不及物动词|量词)' +
+  ')\\s*[.。、:：]?\\s*', 'i');
+
+/** 词性规范化显示：vt&vi / vt.&vi → vt.&vi.；n → n.；中文词性原样 */
+function normPosDisplay(s) {
+  const t = String(s == null ? '' : s).replace(/\s+/g, '').trim();
+  if (POS_CN_SET.has(t)) return t;
+  return t.split('&').map(a => {
+    const bare = a.replace(/\.+$/, '').toLowerCase();
+    return bare ? bare + '.' : '';
+  }).filter(Boolean).join('&');
+}
+
+/** 这行是不是「词性开头」：返回 { pos, rest }，不是则返回 null */
+function matchPosLine(line) {
+  const raw = String(line == null ? '' : line).trim();
+  if (!raw) return null;
+  const m = raw.match(POS_LEAD_RE);
+  if (!m) return null;
+  return { pos: normPosDisplay(m[1]), rest: raw.slice(m[0].length).trim() };
+}
+
+/** 这行是不是单独写了一个英文单词（词典格式里每个词条的开头） */
+function isStandaloneWordLine(line) {
+  const t = String(line == null ? '' : line).trim();
+  if (!t || hasCJK(t) || /^#/.test(t)) return false;
+  if (/[,，;；|｜]/.test(t)) return false;                       // 旧格式「英文,词性 释义」
+  if (!/^[A-Za-z][A-Za-z\s\-'.&()]*$/.test(t)) return false;    // 纯英文（允许短语）
+  if (isPosToken(t) || matchPosLine(t)) return false;            // 词性行不算单词
+  return true;
+}
+
+/** 文本里出现「英文单词行 + 紧跟词性行」就判定为词典式粘贴 */
+function looksLikeBlockFormat(lines) {
+  for (let i = 0; i < lines.length; i++) {
+    if (!isStandaloneWordLine(lines[i])) continue;
+    for (let j = i + 1; j < lines.length; j++) {
+      if (!String(lines[j] || '').trim()) continue;
+      return !!matchPosLine(lines[j]);
+    }
+  }
+  return false;
+}
+
+/** 解析词典式粘贴文本：英文单词行 → 若干词性行（可带续行） */
+function parseBlockWordsText(text) {
+  const lines = String(text || '').split(/\r?\n/);
+  const out = [];
+  let curEn = '';
+  let cur = null;                 // { en, pos, zhRaw }
+  const flush = () => {
+    if (!cur) return;
+    const zh = cleanZh(cur.zhRaw);
+    if (zh && cur.en) out.push({ en: cur.en, pos: cur.pos, zh });
+    cur = null;
+  };
+  for (const line of lines) {
+    const raw = String(line == null ? '' : line).trim();
+    if (!raw || raw.charAt(0) === '#') { flush(); continue; }
+    if (isStandaloneWordLine(raw)) {
+      flush();
+      curEn = raw.replace(/\s+/g, ' ').trim();
+      continue;
+    }
+    const p = matchPosLine(raw);
+    if (p) {
+      flush();
+      cur = { en: curEn, pos: p.pos, zhRaw: p.rest };
+      continue;
+    }
+    // 以英文字母开头且自带英文的一行：按旧格式单独成条，别当成上面的释义续行
+    if (/^[A-Za-z]/.test(raw)) {
+      const w = parseWordLine(raw);
+      if (w && w.en) {
+        flush();
+        out.push({ en: w.en, pos: w.pos || '', zh: w.zh });
+        curEn = w.en;
+        continue;
+      }
+    }
+    if (cur) {                    // 汉字续行：接在上一个词性的释义后面
+      cur.zhRaw += ' ' + raw;
+      continue;
+    }
+    // 兜底：只有词性+意思、省略英文的旧格式行
+    const w = parseWordLine(raw);
+    if (w) {
+      const en = w.en || curEn;
+      if (en) { out.push({ en, pos: w.pos || '', zh: w.zh }); curEn = en; }
+    }
+  }
+  flush();
+  return out.slice(0, WORDS_MAX);
 }
 
 /** 从 JSON 数组里收集单词（支持 {en,zh,pos} 或字符串行） */
 function collectWordsFromArray(arr) {
-  const out = [];
+  const list = [];
   for (const item of arr) {
     if (item == null) continue;
-    if (typeof item === 'string') { const w = parseWordLine(item); if (w) out.push(w); continue; }
+    if (typeof item === 'string') { const w = parseWordLine(item); if (w) list.push(w); continue; }
     if (typeof item !== 'object') continue;
     const en = item.en || item.word || item.english || item.term || '';
     const zh = item.zh || item.cn || item.meaning || item.translation || item.trans || item.definition || item.释义 || item.中文 || '';
     const pos = item.pos || item.part || item.type || item.词性 || '';
-    if (en && zh) { out.push({ en: String(en).trim(), pos: String(pos || '').trim(), zh: String(zh).trim() }); continue; }
+    if (en && zh) {
+      list.push({ en: String(en).trim(), pos: String(pos || '').trim(), zh: cleanZh(zh) || String(zh).trim() });
+      continue;
+    }
     const w = parseWordLine([en, pos, zh].filter(Boolean).join('  '));
-    if (w) out.push(w);
+    if (w) list.push(w);
   }
-  return out;
+  return fillInheritedEn(list);
 }
 
 /** 解析整份文本：优先 JSON（[{en,zh,pos}] / {name,words}），否则按行 */
@@ -6707,8 +7260,28 @@ function parseWordsText(text, defaultName) {
       }
     } catch (e) { /* 落到按行解析 */ }
   }
-  if (!words.length) words = trimmed.split(/\r?\n/).map(parseWordLine).filter(Boolean);
+  if (!words.length) {
+    const lines = trimmed.split(/\r?\n/);
+    // 词典式粘贴（英文单独一行 + 词性行）优先；否则沿用旧的「一行一个词性」
+    if (looksLikeBlockFormat(lines)) words = parseBlockWordsText(trimmed);
+    if (!words.length) words = fillInheritedEn(lines.map(parseWordLine));
+  }
   return { name, words: words.slice(0, WORDS_MAX) };
+}
+
+/** 把单词书里的单词序列化回可编辑文本（词典式：英文单独一行 + 每个词性一行） */
+function serializeWords(words) {
+  const lines = [];
+  let lastEn = '';
+  (words || []).forEach(w => {
+    if (normEn(w.en) !== normEn(lastEn)) {
+      if (lines.length) lines.push('');
+      lines.push(w.en);
+      lastEn = w.en;
+    }
+    lines.push([w.pos, w.zh].filter(Boolean).join(' '));
+  });
+  return lines.join('\n');
 }
 
 /* ---------- 默写校验 ---------- */
@@ -6720,13 +7293,64 @@ function normZh(s) {
     .replace(/[.,;:!?'"()\[\]{}<>，。、；：？！“”‘’（）【】《》…·．·\-_/]/g, '')
     .toLowerCase();
 }
-/** 汉语意思匹配：书里「放弃；抛弃」这类多义，任一项写对就算对 */
+/** 把汉语意思拆成「只含汉字」的项：逗号等分隔符与空白都当分界 */
+function zhParts(s) {
+  return String(s == null ? '' : s)
+    .split(/[,，;；、|｜\/／\s]+/)
+    .map(hanOnly)
+    .filter(Boolean);
+}
+
+/**
+ * 汉语意思匹配（新规则）：
+ *   · 只看汉字 —— 英文字母 / 数字 / 标点 / 空格一律忽略
+ *   · 多个意思用逗号隔开，先后顺序无所谓
+ *   · 每个意思都要出现才算对；多写了别的字不影响
+ * 兼容极旧数据里完全没有汉字的释义：退回整串比对。
+ */
 function zhMatch(input, answer) {
-  const a = normZh(input);
-  if (!a) return false;
-  const cands = String(answer || '').split(/[\/／;；,，、|｜]/).map(normZh).filter(Boolean);
-  if (!cands.length) return false;
-  return cands.some(c => c === a) || normZh(answer) === a;
+  const need = [...new Set(zhParts(answer))];
+  if (!need.length) {
+    const a = normZh(input), b = normZh(answer);
+    return !!a && a === b;
+  }
+  const got = new Set(zhParts(input));
+  const joined = hanOnly(input);
+  if (!got.size && !joined) return false;
+  return need.every(x => got.has(x) || joined.includes(x));
+}
+
+/* ---------- 单词分组：同一个单词的多个词性合成一张卡片 ----------
+   全书范围内英文名相同的词性行都归到同一组（不管相隔多远），
+   组的顺序按每个单词第一次出现的顺序；持久化数据仍是扁平的 words 数组。
+-------------------------------------------------------------------------- */
+
+function buildWordGroups(book) {
+  const map = new Map();
+  const out = [];
+  (book.words || []).forEach((w, index) => {
+    const key = normEn(w.en) || ('__blank_' + index);   // 空英文名各自成组，不误合并
+    let g = map.get(key);
+    if (!g) {
+      g = { key, en: w.en, items: [], firstIndex: index };
+      map.set(key, g);
+      out.push(g);
+    }
+    g.items.push(w);
+  });
+  return out;
+}
+
+/** 当前学到第几组；兼容旧数据（旧 progress 是单词下标，自动换算成组下标） */
+function wordGroupIndex(book) {
+  const groups = buildWordGroups(book);
+  if (book.unit === 'group') return clamp(book.groupProgress || 0, 0, groups.length);
+  const words = book.words || [];
+  const old = clamp(book.progress || 0, 0, words.length);
+  if (old >= words.length) return groups.length;
+  const key = normEn(words[old].en);
+  const i = groups.findIndex(g => g.key === key);
+  return i < 0 ? 0 : i;
 }
 
 /* ---------- 单词书的数据操作（挂在 Store 上，便于备份/重置统一处理） ---------- */
@@ -6737,8 +7361,10 @@ Object.assign(Store, {
       id: uid(),
       name: String(name || '').trim().slice(0, 30) || '我的单词书',
       words: (words || []).map((w, i) => ({ id: uid() + '-' + i, en: String(w.en || '').trim(), pos: String(w.pos || '').trim(), zh: String(w.zh || '').trim() })),
-      progress: 0,        // 下一个要学的下标
-      learned: 0,         // 默写通过的数量
+      progress: 0,        // 兼容字段：当前组在 words 里的起始下标
+      unit: 'group',      // 进度按「单词组」计（一个单词可含多个词性）
+      groupProgress: 0,   // 下一个要学的组下标
+      learned: 0,         // 默写通过的词性条数
       createdAt: Date.now(),
     };
     if (!Array.isArray(this.state.wordBooks)) this.state.wordBooks = [];
@@ -6764,12 +7390,99 @@ Object.assign(Store, {
     if (v) { b.name = v; this.save(); Bus.emit('words:update', { book: b }); }
     return b;
   },
+
+  /** 把单词列表规范化成带 id 的条目；与旧条目按内容匹配时复用旧 id */
+  normalizeWordList(words, oldWords = []) {
+    const key = w => normEn(w.en) + '|' + normEn(w.pos) + '|' + normEn(w.zh);
+    const pool = new Map();
+    (oldWords || []).forEach(w => {
+      const k = key(w);
+      if (!pool.has(k)) pool.set(k, []);
+      pool.get(k).push(w);
+    });
+    return (words || []).map((w, i) => {
+      const en = String(w.en || '').trim();
+      const pos = String(w.pos || '').trim();
+      const zh = String(w.zh || '').trim();
+      const arr = pool.get(key({ en, pos, zh }));
+      const hit = arr && arr.shift();
+      return { id: hit ? hit.id : uid() + '-' + i, en, pos, zh };
+    });
+  },
+
+  /** 编辑整本单词书：名字与单词内容都能自由改；保留仍存在条目的 id 与背诵进度 */
+  updateWordBook(id, name, words) {
+    const b = this.getWordBook(id);
+    if (!b) return null;
+    const v = String(name || '').trim().slice(0, 30);
+    if (v) b.name = v;
+    // 编辑前先记住当前学到哪个单词，内容改完后按同名重新定位，避免跳组
+    const groupsBefore = buildWordGroups(b);
+    const curEn = (groupsBefore[clamp(wordGroupIndex(b), 0, groupsBefore.length - 1)] || {}).en;
+    if (Array.isArray(words) && words.length) {
+      b.words = this.normalizeWordList(words, b.words);
+      b.progress = clamp(b.progress || 0, 0, b.words.length);
+      b.learned = clamp(b.learned || 0, 0, b.words.length);
+    }
+    this.syncGroupProgress(b, curEn);
+    this.save();
+    Bus.emit('words:update', { book: b });
+    return b;
+  },
+
+  /** 按「当前进度对应的英文」重新定位组下标；内容变了也不会错位 */
+  syncGroupProgress(b, curEn) {
+    const groups = buildWordGroups(b);
+    let gi = groups.findIndex(g => normEn(g.en) === normEn(curEn));
+    if (gi < 0) gi = clamp(wordGroupIndex(b), 0, groups.length);
+    b.unit = 'group';
+    b.groupProgress = gi;
+    b.progress = gi >= groups.length ? b.words.length : groups[gi].firstIndex;
+    return b;
+  },
+
+  /** 往已有单词书末尾追加若干单词（不影响已背进度） */
+  addWordsToBook(id, words) {
+    const b = this.getWordBook(id);
+    if (!b) return null;
+    const fresh = this.normalizeWordList(words, []);
+    if (!fresh.length) return b;
+    b.words.push(...fresh);
+    this.save();
+    Bus.emit('words:update', { book: b });
+    return b;
+  },
+
   setWordBookProgress(id, progress, learned) {
     const b = this.getWordBook(id);
     if (!b) return null;
     const total = b.words.length;
     b.progress = clamp(progress, 0, total);
     if (typeof learned === 'number') b.learned = clamp(learned, 0, total);
+    // 已切到「按组计」的书：同步换算组下标，避免两个进度字段打架
+    if (b.unit === 'group') {
+      const words = b.words || [];
+      const p = clamp(b.progress, 0, words.length);
+      const groups = buildWordGroups(b);
+      const key = p >= words.length ? null : normEn(words[p].en);
+      const gi = key == null ? groups.length : groups.findIndex(g => g.key === key);
+      b.groupProgress = clamp(gi < 0 ? 0 : gi, 0, groups.length);
+    }
+    this.save();
+    Bus.emit('words:update', { book: b });
+    return b;
+  },
+
+  /** 推进到某一组（passed 由调用方决定是否计入 learned） */
+  setWordBookGroupProgress(id, gi, learned) {
+    const b = this.getWordBook(id);
+    if (!b) return null;
+    const groups = buildWordGroups(b);
+    const g = clamp(gi, 0, groups.length);
+    b.unit = 'group';
+    b.groupProgress = g;
+    b.progress = g >= groups.length ? b.words.length : groups[g].firstIndex;
+    if (typeof learned === 'number') b.learned = clamp(learned, 0, b.words.length);
     this.save();
     Bus.emit('words:update', { book: b });
     return b;
@@ -6777,11 +7490,13 @@ Object.assign(Store, {
 });
 
 const Words = {
-  view: 'list',              // list | study | quiz | done
+  view: 'list',              // list | catalog | study | quiz | done
   bookId: null,
-  draft: null,               // { mode:'paste'|'import', words }
-  quizInput: { en: '', zh: '' },
-  quizErr: { en: false, zh: false },
+  draft: null,               // { mode:'paste'|'import'|'edit', words, bookId }
+  searchKw: '',              // 书库里的搜索词（返回列表时保留）
+  focus: null,               // { bookId, gi }：从目录 / 搜索结果临时跳到某个单词，不改动已存进度
+  quizInput: { en: '', zhMap: {} },   // zhMap：按词性条目 id 存各自填的汉语意思
+  quizErr: { en: false, zhMap: {} },
   quizMsg: '',
   quizMsgType: '',
 
@@ -6795,6 +7510,10 @@ const Words = {
     $$('[data-close-wordbook]').forEach(el => el.addEventListener('click', () => UI.closeModal('wordBookModal')));
     $('#wordBookSave').addEventListener('click', () => this.saveDraft());
     $('#wordBookInput').addEventListener('input', () => this.updateDraftHint());
+    $('#wordBookQuickAdd').addEventListener('click', () => this.quickAdd());
+    $('#wordBookQuickInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); this.quickAdd(); }
+    });
 
     Bus.on('words:add', () => this.render());
     Bus.on('words:remove', () => this.render());
@@ -6804,7 +7523,11 @@ const Words = {
     this.render();
   },
 
-  reset() { this.view = 'list'; this.bookId = null; this.quizInput = { en: '', zh: '' }; this.quizErr = { en: false, zh: false }; },
+  reset() {
+    this.view = 'list'; this.bookId = null; this.focus = null;
+    this.quizInput = { en: '', zhMap: {} }; this.quizErr = { en: false, zhMap: {} };
+    this.quizMsg = '';
+  },
   open() { UI.openPanel('wordsPanel'); this.render(); },
   close() { this.reset(); UI.closePanels(); },
   book() { return this.bookId ? Store.getWordBook(this.bookId) : null; },
@@ -6822,6 +7545,7 @@ const Words = {
     if (this.view !== 'list' && !b) this.reset();
     body.innerHTML = '';
 
+    if (this.view === 'catalog') return this.renderCatalog(this.book());
     if (this.view === 'study') return this.renderStudy(this.book());
     if (this.view === 'quiz') return this.renderQuiz(this.book());
     if (this.view === 'done') return this.renderDone(this.book());
@@ -6833,7 +7557,7 @@ const Words = {
   renderList(all) {
     const body = $('#wordsBody');
     const info = mkEl('div', 'words-head-info',
-      '从本地导入你自己的单词书（.txt / .csv / .json，一行一个单词）。点开一本，就顺着书里的顺序背：先看单词和意思，点「记住了」再默写，英文和汉语都写对才进入下一个。');
+      '从本地导入或手动粘贴单词书（.txt / .csv / .json）。英文单词单独一行、下面每个词性一行，[C]/[U] 和括号括注会自动忽略。下方搜索框可查所有书里的单词，结果会标出来自哪一本；每本书点「目录」只看英文单词，点单词直接学，点最右边的「发」就把英文单词发到聊天里让 TA 回答，TA 也会偶尔抽一个词考你（概率在设置里调）。');
     body.appendChild(info);
 
     const addBtn = mkEl('button', 'btn btn-primary words-add-btn', '＋ 从本地导入单词书');
@@ -6847,6 +7571,23 @@ const Words = {
     newBtn.addEventListener('click', () => this.openDraft('paste'));
     body.appendChild(newBtn);
 
+    // 搜索：查所有已添加的单词本，结果标出来自哪一本
+    const searchWrap = mkEl('div', 'wb-search');
+    const searchInput = document.createElement('input');
+    searchInput.type = 'search';
+    searchInput.className = 'wb-search-input';
+    searchInput.placeholder = '搜索单词本里的单词（也可搜汉语意思）';
+    searchInput.autocomplete = 'off';
+    searchInput.value = this.searchKw || '';
+    const results = mkEl('div', 'wb-search-results');
+    searchInput.addEventListener('input', () => {
+      this.searchKw = searchInput.value;
+      this.renderSearchResults(this.searchKw, results);
+    });
+    searchWrap.append(searchInput, results);
+    body.appendChild(searchWrap);
+    if (this.searchKw) this.renderSearchResults(this.searchKw, results);
+
     const list = mkEl('div', 'words-list');
     if (!all.length) {
       list.appendChild(mkEl('div', 'words-empty', '还没有单词书。\n导入之后，单词会按书里的顺序\n一个一个出现在你面前。'));
@@ -6856,9 +7597,102 @@ const Words = {
     body.appendChild(list);
   },
 
+  /* ---------- 搜索：跨所有单词本找单词，结果标出书名 ---------- */
+
+  renderSearchResults(kw, box) {
+    box.innerHTML = '';
+    const q = String(kw || '').trim().toLowerCase();
+    if (!q) return;                       // 没输入就不显示结果区
+
+    const hits = [];
+    (Store.state.wordBooks || []).forEach(book => {
+      buildWordGroups(book).forEach((g, gi) => {
+        const enHit = String(g.en || '').toLowerCase().indexOf(q) >= 0;
+        const zhHit = g.items.some(it => String(it.zh || '').toLowerCase().indexOf(q) >= 0);
+        if (enHit || zhHit) hits.push({ book, gi, en: g.en });
+      });
+    });
+
+    if (!hits.length) {
+      box.appendChild(mkEl('div', 'wb-search-empty', '没有找到「' + String(kw).trim() + '」'));
+      return;
+    }
+    const shown = hits.slice(0, 60);
+    box.appendChild(mkEl('div', 'wb-search-head',
+      '找到 ' + hits.length + ' 个单词' + (hits.length > shown.length ? '（先显示前 ' + shown.length + ' 个）' : '') + ' · 点一下直接学'));
+
+    shown.forEach(h => {
+      const btn = mkEl('button', 'wb-search-item');
+      btn.type = 'button';
+      btn.appendChild(mkEl('span', 'wb-search-word', h.en));
+      btn.appendChild(mkEl('span', 'wb-search-book', '《' + h.book.name + '》'));
+      btn.addEventListener('click', () => this.enterWord(h.book.id, h.gi));
+      box.appendChild(btn);
+    });
+  },
+
+  /* ---------- 目录：只列英文单词，点一下进入该词的学习页 ---------- */
+
+  openCatalog(id) {
+    const b = Store.getWordBook(id);
+    if (!b) return;
+    this.bookId = id;
+    this.focus = null;
+    this.view = 'catalog';
+    this.render();
+  },
+
+  renderCatalog(b) {
+    const body = $('#wordsBody');
+    const groups = buildWordGroups(b);
+    const stage = mkEl('div', 'wb-stage');
+    stage.appendChild(this.buildHead('《' + b.name + '》 · 目录', true));
+
+    const list = mkEl('div', 'wb-catalog');
+    if (!groups.length) {
+      list.appendChild(mkEl('div', 'wb-catalog-empty', '这本单词书里还没有单词'));
+    } else {
+      groups.forEach((g, i) => {
+        const row = mkEl('div', 'wb-catalog-row');
+        const item = mkEl('button', 'wb-catalog-item', g.en);
+        item.type = 'button';
+        item.title = '学这个单词';
+        item.addEventListener('click', () => this.enterWord(b.id, i));
+        const send = mkEl('button', 'wb-catalog-send', '发');
+        send.type = 'button';
+        send.title = '发到聊天里，让 TA 回答词性与汉语意思';
+        send.addEventListener('click', () => WordQuiz.sendWordToChat(b.id, i));
+        row.append(item, send);
+        list.appendChild(row);
+      });
+    }
+    stage.appendChild(list);
+    body.appendChild(stage);
+  },
+
+  /**
+   * 从目录 / 搜索结果跳到某一个单词。
+   * 用临时焦点定位，不改变书里已保存的背诵进度；只有真正默写通过才落库。
+   */
+  enterWord(bookId, gi) {
+    const b = Store.getWordBook(bookId);
+    if (!b) return;
+    const groups = buildWordGroups(b);
+    if (!groups.length) { UI.toast('这本单词书里还没有单词'); return; }
+    this.bookId = bookId;
+    this.focus = { bookId, gi: clamp(gi, 0, groups.length - 1) };
+    this.quizInput = { en: '', zhMap: {} };
+    this.quizErr = { en: false, zhMap: {} };
+    this.quizMsg = '';
+    this.view = 'study';
+    this.render();
+  },
+
   buildBookItem(book) {
-    const total = book.words.length;
-    const done = clamp(book.progress || 0, 0, total);
+    const groups = buildWordGroups(book);
+    const total = groups.length;                 // 单词数（同名多词性算一个）
+    const senses = book.words.length;            // 词性条数
+    const done = clamp(wordGroupIndex(book), 0, total);
     const finished = total > 0 && done >= total;
 
     const item = mkEl('div', 'word-book');
@@ -6869,8 +7703,11 @@ const Words = {
     const iconBox = mkEl('div', 'wb-icon');
     iconBox.innerHTML = icon('book', 20);
     const title = mkEl('div', 'wb-title');
-    title.appendChild(mkEl('div', 'wb-name', book.name));
-    title.appendChild(mkEl('div', 'wb-sub', total + ' 个单词 · 已背 ' + done + ' / ' + total));
+    const nameEl = mkEl('div', 'wb-name', book.name);
+    nameEl.title = '点击修改书名';
+    nameEl.addEventListener('click', e => { e.stopPropagation(); this.startRename(nameEl, book); });
+    title.appendChild(nameEl);
+    title.appendChild(mkEl('div', 'wb-sub', total + ' 个单词 · ' + senses + ' 条词性 · 已背 ' + done + ' / ' + total));
     top.append(iconBox, title);
     item.appendChild(top);
 
@@ -6884,74 +7721,155 @@ const Words = {
     const startBtn = mkEl('button', 'btn btn-primary', finished ? '再背一遍' : (done ? '继续背' : '开始背'));
     startBtn.type = 'button';
     startBtn.addEventListener('click', e => { e.stopPropagation(); this.startBook(book.id, finished); });
+    const catBtn = mkEl('button', 'btn btn-ghost', '目录');
+    catBtn.type = 'button';
+    catBtn.title = '只看这本里的英文单词，点一个就能学';
+    catBtn.addEventListener('click', e => { e.stopPropagation(); this.openCatalog(book.id); });
+    const editBtn = mkEl('button', 'btn btn-ghost', '✎ 编辑');
+    editBtn.type = 'button';
+    editBtn.title = '改书名 / 自由增删改单词内容';
+    editBtn.addEventListener('click', e => { e.stopPropagation(); this.openEdit(book.id); });
     const delBtn = mkEl('button', 'btn btn-danger', '删除');
     delBtn.type = 'button';
     delBtn.addEventListener('click', e => { e.stopPropagation(); this.removeBook(book.id); });
-    acts.append(startBtn, delBtn);
+    acts.append(startBtn, catBtn, editBtn, delBtn);
     item.appendChild(acts);
 
     item.addEventListener('click', () => this.startBook(book.id, false));
     return item;
   },
 
-  /* ---------- 学习页：英文 + 词性 + 汉语意思 ---------- */
+  /** 书名点一下就变成输入框：回车 / 失焦保存，Esc 取消 */
+  startRename(nameEl, book) {
+    if (nameEl.querySelector('input')) return;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'wb-rename-input';
+    input.maxLength = 30;
+    input.value = book.name;
+    nameEl.textContent = '';
+    nameEl.appendChild(input);
+    input.focus(); input.select();
+
+    let closed = false;
+    const finish = save => {
+      if (closed) return;
+      closed = true;
+      const v = input.value.trim();
+      if (save && v && v !== book.name) {
+        Store.renameWordBook(book.id, v);   // 内部会触发 words:update 重绘列表
+      } else {
+        this.render();                      // 取消 / 没改动：恢复显示
+      }
+    };
+    input.addEventListener('click', e => e.stopPropagation());
+    input.addEventListener('keydown', e => {
+      e.stopPropagation();
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    });
+    // 稍等一拍，避免点了「编辑」按钮时先失焦重绘、把点击吞掉
+    input.addEventListener('blur', () => setTimeout(() => finish(true), 150));
+  },
+
+  /** 打开「编辑单词书」弹窗：名字与单词内容都能自由改 / 自由追加 */
+  openEdit(id) {
+    const b = Store.getWordBook(id);
+    if (!b) return;
+    this.openDraft('edit', [], b.name, id);
+  },
+
+  /* ---------- 学习页：同一个单词的所有词性同时出现在一张卡片 ---------- */
+
+  /** 取出当前要学的「单词组」（一个组 = 同名的所有词性行）
+   *  从目录 / 搜索结果跳进来时用临时焦点定位，不影响书里已保存的进度。 */
+  currentGroup(b) {
+    const groups = buildWordGroups(b);
+    const base = this.focus && this.focus.bookId === b.id ? this.focus.gi : wordGroupIndex(b);
+    const gi = clamp(base, 0, Math.max(0, groups.length - 1));
+    return { groups, gi, group: groups[gi] || null };
+  },
 
   startBook(id, restart) {
     const b = Store.getWordBook(id);
     if (!b) return;
     if (!b.words.length) { UI.toast('这本单词书里还没有单词'); return; }
-    if (restart) Store.setWordBookProgress(id, 0, 0);
+    if (restart) Store.setWordBookGroupProgress(id, 0, 0);
     this.bookId = id;
+    this.focus = null;                 // 从书卡片进入 = 按已存进度正常背
     this.view = 'study';
     this.render();
   },
 
   goPrev() {
     const b = this.book(); if (!b) return;
-    Store.setWordBookProgress(b.id, Math.max(0, clamp(b.progress, 0, b.words.length) - 1));
+    const { gi } = this.currentGroup(b);
+    const prev = Math.max(0, gi - 1);
+    if (this.focus) this.focus.gi = prev;      // 只是翻看，不写进度
+    else Store.setWordBookGroupProgress(b.id, prev, b.learned);
     this.view = 'study';
     this.render();
   },
 
-  /** 前进到下一个单词；passed=true 表示这次是默写通过（计入已背） */
+  /** 前进到下一个单词；passed=true 表示整组默写通过（按词性条数计入已背） */
   goNext(passed) {
     const b = this.book(); if (!b) return;
-    const total = b.words.length;
-    const next = clamp(b.progress, 0, total) + 1;
+    const { groups, gi } = this.currentGroup(b);
+    const next = gi + 1;
+    // 从目录 / 搜索结果临时跳进来：只推进焦点，不打乱原来的背诵位置
+    if (this.focus) {
+      if (passed) {
+        const g = groups[gi];
+        const learned = Math.min(b.words.length, (b.learned || 0) + (g ? g.items.length : 1));
+        Store.setWordBookGroupProgress(b.id, wordGroupIndex(b), learned);  // 进度保持原样，仅累计已背条数
+      }
+      this.focus.gi = next;
+      this.view = next >= groups.length ? 'done' : 'study';
+      this.render();
+      return;
+    }
     let learned = b.learned || 0;
-    if (passed) learned = Math.min(total, learned + 1);
-    Store.setWordBookProgress(b.id, next, learned);
-    this.view = next >= total ? 'done' : 'study';
+    if (passed) {
+      const g = groups[gi];
+      learned = Math.min(b.words.length, learned + (g ? g.items.length : 1));
+    }
+    Store.setWordBookGroupProgress(b.id, next, learned);
+    this.view = next >= groups.length ? 'done' : 'study';
     this.render();
   },
 
   renderStudy(b) {
     const body = $('#wordsBody');
-    if (!b.words.length) { this.reset(); return this.render(); }
-    const idx = clamp(b.progress, 0, b.words.length - 1);
-    const w = b.words[idx];
+    const { groups, gi, group } = this.currentGroup(b);
+    if (!group) { this.view = 'done'; return this.render(); }
 
     const stage = mkEl('div', 'wb-stage');
-    stage.appendChild(this.buildHead(b.name + ' · 第 ' + (idx + 1) + ' / ' + b.words.length, true));
+    stage.appendChild(this.buildHead(b.name + ' · 第 ' + (gi + 1) + ' / ' + groups.length, true));
 
     const card = mkEl('div', 'wb-card');
-    card.appendChild(mkEl('div', 'wb-word', w.en));
-    if (w.pos) card.appendChild(mkEl('div', 'wb-pos', w.pos));
-    card.appendChild(mkEl('div', 'wb-zh', w.zh));
+    card.appendChild(mkEl('div', 'wb-word', group.en));
+    const senses = mkEl('div', 'wb-senses');
+    group.items.forEach(item => {
+      const row = mkEl('div', 'wb-sense');
+      row.appendChild(mkEl('span', 'wb-sense-pos', item.pos || '释义'));
+      row.appendChild(mkEl('span', 'wb-sense-zh', item.zh));
+      senses.appendChild(row);
+    });
+    card.appendChild(senses);
     stage.appendChild(card);
 
     const acts = mkEl('div', 'wb-actions');
     const prevBtn = mkEl('button', 'btn btn-ghost', '上一个');
     prevBtn.type = 'button';
-    prevBtn.disabled = idx === 0;
+    prevBtn.disabled = gi === 0;
     prevBtn.addEventListener('click', () => this.goPrev());
 
     const okBtn = mkEl('button', 'btn btn-primary', '记住了');
     okBtn.type = 'button';
-    okBtn.title = '去默写这个单词';
+    okBtn.title = '去默写这个单词的所有词性';
     okBtn.addEventListener('click', () => {
-      this.quizInput = { en: '', zh: '' };
-      this.quizErr = { en: false, zh: false };
+      this.quizInput = { en: '', zhMap: {} };
+      this.quizErr = { en: false, zhMap: {} };
       this.view = 'quiz';
       this.render();
     });
@@ -6966,22 +7884,23 @@ const Words = {
     body.appendChild(stage);
   },
 
-  /* ---------- 默写页：输入英文 + 汉语意思 ---------- */
+  /* ---------- 默写页：英文只填一次，下面按词性逐行填对应汉语意思 ---------- */
 
   renderQuiz(b) {
     const body = $('#wordsBody');
-    if (!b.words.length) { this.reset(); return this.render(); }
-    const idx = clamp(b.progress, 0, b.words.length - 1);
-    const w = b.words[idx];
+    const { groups, gi, group } = this.currentGroup(b);
+    if (!group) { this.view = 'done'; return this.render(); }
 
     const stage = mkEl('div', 'wb-stage');
-    stage.appendChild(this.buildHead('默写 · 第 ' + (idx + 1) + ' / ' + b.words.length, false));
+    stage.appendChild(this.buildHead('默写 · 第 ' + (gi + 1) + ' / ' + groups.length, false));
 
     const box = mkEl('div', 'wb-quiz');
-    box.appendChild(mkEl('div', 'wb-quiz-tip', '把刚才那个单词再写一遍，英文和汉语意思都要写对，才能进入下一个。写错了就重来一次～'));
+    box.appendChild(mkEl('div', 'wb-quiz-tip',
+      '英文单词只写一次；下面按词性逐行写对应的汉语意思。多个意思用逗号、分号或顿号隔开，只认汉字、顺序随便，但每一行都要写全～'));
 
+    // 英文：整组只写一次
     const f1 = mkEl('div', 'wb-field');
-    f1.appendChild(mkEl('label', null, '英文单词' + (w.pos ? '（' + w.pos + '）' : '')));
+    f1.appendChild(mkEl('label', null, '英文单词' + (group.items.length > 1 ? '（' + group.items.length + ' 个词性，只写一次）' : '')));
     const inEn = document.createElement('input');
     inEn.type = 'text'; inEn.className = 'wb-input' + (this.quizErr.en ? ' err' : '');
     inEn.autocomplete = 'off'; inEn.spellcheck = false;
@@ -6990,14 +7909,26 @@ const Words = {
     f1.appendChild(inEn);
     box.appendChild(f1);
 
+    // 汉语意思：第一行第一个词性，第二行第二个词性……每行后面对应自己的输入框
     const f2 = mkEl('div', 'wb-field');
-    f2.appendChild(mkEl('label', null, '汉语意思'));
-    const inZh = document.createElement('input');
-    inZh.type = 'text'; inZh.className = 'wb-input' + (this.quizErr.zh ? ' err' : '');
-    inZh.autocomplete = 'off';
-    inZh.placeholder = '写出它的汉语意思';
-    inZh.value = this.quizInput.zh || '';
-    f2.appendChild(inZh);
+    f2.appendChild(mkEl('label', null, '汉语意思（按词性逐行填写，逗号/分号隔开、顺序不限）'));
+    const fields = mkEl('div', 'wb-sense-fields');
+    const zhInputs = [];
+    group.items.forEach((item, i) => {
+      const row = mkEl('div', 'wb-sense-row');
+      row.appendChild(mkEl('span', 'wb-sense-pos', item.pos || ('第 ' + (i + 1) + ' 行')));
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'wb-input' + ((this.quizErr.zhMap || {})[item.id] ? ' err' : '');
+      inp.autocomplete = 'off';
+      inp.placeholder = '意思1,意思2';
+      inp.value = (this.quizInput.zhMap || {})[item.id] || '';
+      inp.dataset.wordId = item.id;
+      row.appendChild(inp);
+      fields.appendChild(row);
+      zhInputs.push(inp);
+    });
+    f2.appendChild(fields);
     box.appendChild(f2);
 
     const msg = mkEl('div', 'wb-msg');
@@ -7012,44 +7943,56 @@ const Words = {
     backBtn.addEventListener('click', () => { this.view = 'study'; this.quizMsg = ''; this.render(); });
     const okBtn = mkEl('button', 'btn btn-primary', '确认');
     okBtn.type = 'button';
-    okBtn.addEventListener('click', () => this.checkQuiz(inEn, inZh));
+    okBtn.addEventListener('click', () => this.checkQuiz(inEn, zhInputs));
     acts.append(backBtn, okBtn);
     stage.appendChild(acts);
     body.appendChild(stage);
 
-    const submit = e => { if (e.key === 'Enter') { e.preventDefault(); this.checkQuiz(inEn, inZh); } };
-    inEn.addEventListener('keydown', submit);
-    inZh.addEventListener('keydown', submit);
+    const submit = e => { if (e.key === 'Enter') { e.preventDefault(); this.checkQuiz(inEn, zhInputs); } };
+    [inEn].concat(zhInputs).forEach(el => el.addEventListener('keydown', submit));
 
     if (this.quizErr.en) inEn.focus();
-    else if (this.quizErr.zh) inZh.focus();
-    else setTimeout(() => { try { inEn.focus({ preventScroll: true }); } catch (e) { inEn.focus(); } }, 380);
+    else {
+      const firstBad = zhInputs.find(inp => (this.quizErr.zhMap || {})[inp.dataset.wordId]);
+      if (firstBad) firstBad.focus();
+      else setTimeout(() => { try { inEn.focus({ preventScroll: true }); } catch (e) { inEn.focus(); } }, 380);
+    }
   },
 
-  checkQuiz(inEn, inZh) {
+  checkQuiz(inEn, zhInputs) {
     const b = this.book(); if (!b) return;
-    const w = b.words[clamp(b.progress, 0, b.words.length - 1)];
-    if (!w) return;
+    const { group } = this.currentGroup(b);
+    if (!group) return;
 
-    const enIn = inEn.value, zhIn = inZh.value;
-    this.quizInput = { en: enIn, zh: zhIn };
-    const enOk = normEn(enIn) === normEn(w.en);
-    const zhOk = zhMatch(zhIn, w.zh);
+    const zhMap = {};
+    zhInputs.forEach(inp => { zhMap[inp.dataset.wordId] = inp.value; });
+    this.quizInput = { en: inEn.value, zhMap };
 
-    if (enOk && zhOk) {
-      this.quizInput = { en: '', zh: '' };
-      this.quizErr = { en: false, zh: false };
+    const enOk = normEn(inEn.value) === normEn(group.en);
+    const zhErrMap = {}, badRows = [];
+    group.items.forEach((item, i) => {
+      if (!zhMatch(zhMap[item.id] || '', item.zh)) {
+        zhErrMap[item.id] = true;
+        badRows.push(i + 1);
+      }
+    });
+    const allZhOk = badRows.length === 0;
+
+    if (enOk && allZhOk) {
+      this.quizInput = { en: '', zhMap: {} };
+      this.quizErr = { en: false, zhMap: {} };
       this.quizMsg = '';
       UI.toast('写对了，进入下一个 ✨');
       this.goNext(true);
       return;
     }
 
-    // 不对：留在本页，保留已输入内容，提示哪一项错了，让你重新输入
-    this.quizErr = { en: !enOk, zh: !zhOk };
+    // 不对：留在本页，保留已输入内容，标出是哪一行没写全
+    this.quizErr = { en: !enOk, zhMap: zhErrMap };
     this.quizMsgType = 'err';
-    this.quizMsg = (!enOk && !zhOk) ? '两个都对不上，再想想～'
-      : (!enOk ? '英文拼写不对，再写一次' : '汉语意思不对，再写一次');
+    this.quizMsg = (!enOk && !allZhOk) ? '英文和汉语意思都对不上，再想想～'
+      : (!enOk ? '英文拼写不对，再写一次'
+        : '第 ' + badRows.join('、') + ' 行的汉语意思没写全，再写一次');
     this.render();
     const box = $('#wordsBody .wb-quiz');
     if (box) { box.classList.remove('wb-shake'); void box.offsetWidth; box.classList.add('wb-shake'); }
@@ -7065,11 +8008,11 @@ const Words = {
     const done = mkEl('div', 'wb-done');
     done.appendChild(mkEl('div', 'big', '🎉'));
     done.appendChild(mkEl('h3', null, '这本背完啦'));
-    done.appendChild(mkEl('p', null, '《' + b.name + '》一共 ' + b.words.length + ' 个单词都过了一遍，真棒。'));
+    done.appendChild(mkEl('p', null, '《' + b.name + '》一共 ' + buildWordGroups(b).length + ' 个单词、' + b.words.length + ' 条词性都过了一遍，真棒。'));
     const acts = mkEl('div', 'wb-done-acts');
     const againBtn = mkEl('button', 'btn btn-primary', '再背一遍');
     againBtn.type = 'button';
-    againBtn.addEventListener('click', () => { Store.setWordBookProgress(b.id, 0, 0); this.view = 'study'; this.render(); });
+    againBtn.addEventListener('click', () => { this.focus = null; Store.setWordBookGroupProgress(b.id, 0, 0); this.view = 'study'; this.render(); });
     const backBtn = mkEl('button', 'btn btn-ghost', '返回书库');
     backBtn.type = 'button';
     backBtn.addEventListener('click', () => { this.reset(); this.render(); });
@@ -7108,7 +8051,7 @@ const Words = {
     try { text = await this.readAsText(file); } catch (err) { UI.toast('文件读取失败'); return; }
     const baseName = String(file.name || '').replace(/\.[^.]+$/, '').slice(0, 30);
     const parsed = parseWordsText(text, baseName);
-    if (!parsed.words.length) { UI.toast('没识别到单词，检查下格式（一行一个：英文 词性 中文）'); return; }
+    if (!parsed.words.length) { UI.toast('没识别到单词，检查下格式（英文单独一行，下面每个词性一行）'); return; }
     this.openDraft('import', parsed.words, baseName || parsed.name);
   },
 
@@ -7121,27 +8064,56 @@ const Words = {
     });
   },
 
-  openDraft(mode, words, name) {
-    this.draft = { mode, words: words || [] };
-    $('#wordBookTitle').textContent = mode === 'import' ? '导入单词书' : '新建单词书';
+  openDraft(mode, words, name, bookId) {
+    const b = mode === 'edit' ? Store.getWordBook(bookId) : null;
+    this.draft = { mode, words: words || [], bookId: bookId || null };
+    $('#wordBookTitle').textContent = mode === 'import' ? '导入单词书' : (mode === 'edit' ? '编辑单词书' : '新建单词书');
     $('#wordBookDesc').textContent = mode === 'import'
-      ? '下面是从文件里识别出来的单词，确认书名后保存即可。'
-      : '一行一个单词，英文在前、中文在后，中间用空格或逗号隔开；词性可写可不写。';
+      ? '下面是从文件里识别出来的内容，确认书名后保存即可。同名单词的多个词性会自动合并成一张卡片。'
+      : (mode === 'edit'
+        ? '书名和单词内容都能自由改：在下面直接追加、修改或删掉任意一行，保存后已背进度会保留。'
+        : '英文单词单独一行，下面每个词性一行；[C]/[U] 和括号括注会自动忽略。同名单词的多个词性合成一张卡片，默写时逐行填写。');
     $('#wordBookName').value = name || '';
-    $('#wordBookPasteWrap').style.display = mode === 'paste' ? '' : 'none';
+    const canPaste = mode !== 'import';
+    $('#wordBookPasteWrap').style.display = canPaste ? '' : 'none';
     $('#wordBookPreviewWrap').style.display = mode === 'import' ? '' : 'none';
-    $('#wordBookInput').value = '';
+    $('#wordBookQuickWrap').style.display = canPaste ? '' : 'none';
+    $('#wordBookInput').value = mode === 'edit' && b ? serializeWords(b.words) : '';
+    $('#wordBookQuickInput').value = '';
     $('#wordBookPasteHint').textContent = '';
     if (mode === 'import') this.renderPreview(this.draft.words);
+    else this.updateDraftHint();
     UI.openModal('wordBookModal');
-    if (mode === 'paste') setTimeout(() => $('#wordBookInput').focus(), 80);
+    if (canPaste) setTimeout(() => { try { $('#wordBookQuickInput').focus({ preventScroll: true }); } catch (e) { $('#wordBookQuickInput').focus(); } }, 80);
+  },
+
+  /** 快速追加一条词性：写「n. 进步,进展」点一下就接到上一个单词后面 */
+  quickAdd() {
+    if (!this.draft || this.draft.mode === 'import') return;
+    const inp = $('#wordBookQuickInput');
+    const v = inp.value.trim();
+    if (!v) { UI.toast('先写一条，比如：n. 进步,进展'); return; }
+    const ta = $('#wordBookInput');
+    const before = parseWordsText(ta.value, '').words.length;
+    const merged = ta.value.trim() ? ta.value.replace(/\s+$/, '') + '\n' + v : v;
+    // 连着已有内容一起解析：这样「n. 进步,进展」这种词性行也能加进来
+    if (parseWordsText(merged, '').words.length <= before) {
+      UI.toast('没识别到新词性，格式：n. 进步,进展');
+      return;
+    }
+    ta.value = merged;
+    inp.value = '';
+    this.updateDraftHint();
+    UI.toast('已添到列表，保存后生效');
+    inp.focus();
   },
 
   renderPreview(words) {
     const box = $('#wordBookPreview');
     box.innerHTML = '';
     const head = document.createElement('div');
-    head.textContent = '共识别 ' + words.length + ' 个单词' + (words.length >= WORDS_MAX ? '（已取前 ' + WORDS_MAX + ' 个）' : '');
+    const wordCount = new Set(words.map(w => normEn(w.en))).size;
+    head.textContent = '共识别 ' + wordCount + ' 个单词 · ' + words.length + ' 条词性' + (words.length >= WORDS_MAX ? '（已取前 ' + WORDS_MAX + ' 条）' : '');
     head.style.cssText = 'font-weight:600; color:var(--text-1); margin-bottom:4px;';
     box.appendChild(head);
     words.slice(0, 30).forEach(w => {
@@ -7155,21 +8127,34 @@ const Words = {
   },
 
   updateDraftHint() {
-    if (!this.draft || this.draft.mode !== 'paste') return;
-    const n = parseWordsText($('#wordBookInput').value, '').words.length;
-    $('#wordBookPasteHint').textContent = n ? '已识别 ' + n + ' 个单词' : '';
+    if (!this.draft || this.draft.mode === 'import') return;
+    const ws = parseWordsText($('#wordBookInput').value, '').words;
+    const n = ws.length;
+    const m = new Set(ws.map(w => normEn(w.en))).size;
+    $('#wordBookPasteHint').textContent = n ? '已识别 ' + m + ' 个单词 · ' + n + ' 条词性' : '';
   },
 
   saveDraft() {
+    const mode = this.draft && this.draft.mode;
     const name = $('#wordBookName').value.trim().slice(0, 30) || '我的单词书';
-    const words = (this.draft && this.draft.mode === 'import')
-      ? this.draft.words
+    const words = mode === 'import'
+      ? (this.draft.words || [])
       : parseWordsText($('#wordBookInput').value, '').words;
     if (!words.length) { UI.toast('还没有识别到单词'); return; }
+
+    if (mode === 'edit') {
+      const book = Store.updateWordBook(this.draft.bookId, name, words);
+      if (!book) { UI.toast('这本单词书已经不在了'); return; }
+      this.draft = null;
+      UI.closeModal('wordBookModal');
+      UI.toast('《' + book.name + '》已更新，共 ' + book.words.length + ' 条词性');
+      this.render();
+      return;
+    }
     const book = Store.addWordBook(name, words);
     this.draft = null;
     UI.closeModal('wordBookModal');
-    UI.toast('已添加《' + book.name + '》，共 ' + book.words.length + ' 个单词');
+    UI.toast('已添加《' + book.name + '》，共 ' + book.words.length + ' 条词性');
     this.render();
   },
 
@@ -7186,6 +8171,227 @@ const Words = {
     Store.removeWordBook(id);
     UI.toast('已删除《' + b.name + '》');
     this.render();
+  },
+};
+
+/* ======================= 七·九·二、单词小测 WordQuiz =======================
+   1) 目录里每个单词右边的「发」：只把英文单词发到聊天里，
+      TA 用单词本里的内容，一条消息逐行回答「词性 + 汉语意思」。
+   2) TA 偶尔（概率在设置里调）从所有单词本的目录里抽一个单词考你：
+      · 英→中：显示英文，按词性逐行填各自对应的汉语意思
+      · 中→英：逐行显示词性 + 汉语意思，填英文单词
+      题目、输入框、提交、判定都在同一个气泡里；答错保留内容、原地重填。
+      判定沿用单词本规则：只认汉字、多个意思逗号/分号隔开、顺序不限、每行写全。
+========================================================================== */
+
+const WordQuiz = {
+  lastQuizTs: 0,                 // 防止刚答完又立刻连出一道题
+
+  /** 所有单词本「目录」里的词条：一个单词一条，含它全部词性 */
+  allEntries() {
+    const out = [];
+    (Store.state.wordBooks || []).forEach(book => {
+      buildWordGroups(book).forEach(g => {
+        const senses = g.items.map(it => ({ pos: it.pos || '', zh: it.zh || '' }));
+        if (g.en && senses.length) out.push({ bookId: book.id, bookName: book.name, en: g.en, senses });
+      });
+    });
+    return out;
+  },
+
+  pickRandom() {
+    const all = this.allEntries();
+    return all.length ? all[Math.floor(Math.random() * all.length)] : null;
+  },
+
+  /** 目录右侧「发」：气泡里只会显示英文单词；快照存进消息，删了书也能回答 */
+  sendWordToChat(bookId, gi) {
+    const b = Store.getWordBook(bookId);
+    if (!b) { UI.toast('这本单词书已经不在了'); return null; }
+    const g = buildWordGroups(b)[gi];
+    if (!g) return null;
+    const senses = g.items.map(it => ({ pos: it.pos || '', zh: it.zh || '' }));
+    const replyTo = Chat.currentReplySnapshot();
+    const msg = Chat.appendMessage({
+      role: 'me', text: g.en,             // 普通文字气泡 → 只显示英文单词
+      wordCard: true,
+      wordBookId: b.id, wordBookName: b.name,
+      wordEn: g.en, wordSenses: senses,
+      replyTo,
+    });
+    if (replyTo) Chat.clearReplyTarget();
+    Bus.emit('chat:send', { msg });
+    UI.closePanels();                     // 发完回到聊天页面
+    Words.reset();
+    if (Chat.multiMode) {
+      Chat.multiSentCount++;
+      Chat.updateMultiBadge();
+      UI.toast('批量模式：已发送 1 条');
+    } else {
+      Chat.requestReply({ __wordMsgId: msg.id });
+    }
+    return msg;
+  },
+
+  /** TA 回答我发的单词：一条消息，按词性逐行列出「词性 汉语意思」 */
+  async taAnswerWord(msgId) {
+    const src = Store.state.messages.find(m => m.id === msgId);
+    if (!src || !src.wordCard) return;
+    const senses = src.wordSenses || [];
+    const text = senses.map(s => (s.pos ? s.pos + ' ' : '') + s.zh).join('\n');
+    const delay = Chat.calcReplyDelay(src.wordEn || text);
+    Chat.showTyping();
+    await sleep(delay);
+    Chat.hideTyping();
+    const answer = Chat.appendMessage({ role: 'ta', text, wordAnswerFor: msgId });
+    Bus.emit('chat:reply', { msg: answer, wordAnswer: true });
+  },
+
+  /** TA 主动发一道题；direction 可指定 'en2zh' / 'zh2en'，不传就随机 */
+  sendAsTa(entry, direction) {
+    const e = entry || this.pickRandom();
+    if (!e) return null;
+    const dir = direction || (Math.random() < 0.5 ? 'en2zh' : 'zh2en');
+    // 摘要用「题目里显示的内容」，中→英题不在收藏/搜索/导出里泄露英文答案
+    const summary = dir === 'zh2en'
+      ? '📖 单词小测 · ' + e.senses.map(s => s.zh).join('；')
+      : '📖 单词小测 · ' + e.en;
+    const msg = Chat.appendMessage({
+      role: 'ta', type: 'wordQuiz',
+      text: summary,                     // 收藏 / 搜索 / 导出沿用文字逻辑
+      wordBookId: e.bookId, wordBookName: e.bookName,
+      wordEn: e.en,
+      wordSenses: e.senses.map((s, i) => ({ id: 'ws-' + i, pos: s.pos, zh: s.zh })),
+      direction: dir,
+      answer: null,
+      __noRecall: true,                  // 题目要作答，别被 TA 自己撤回掉
+    });
+    this.lastQuizTs = Date.now();
+    Bus.emit('chat:reply', { msg, wordQuiz: true });
+    return msg;
+  },
+
+  /** 构建答题气泡：未答 = 题目 + 输入框 + 提交；已答 = 答对 + 完整答案 */
+  buildBubble(bubble, msg) {
+    bubble.innerHTML = '';
+    bubble.className = 'bubble word-quiz-bubble';
+    if (msg.replyTo) Chat.buildQuoteInto(bubble, msg);
+
+    const zh2en = msg.direction === 'zh2en';
+    const senses = msg.wordSenses || [];
+    bubble.appendChild(mkEl('div', 'wq-head', zh2en ? '📖 单词小测 · 看中文写英文' : '📖 单词小测 · 看英文写中文'));
+
+    if (msg.answer) {
+      bubble.appendChild(mkEl('div', 'wq-word', msg.wordEn || ''));
+      bubble.appendChild(mkEl('div', 'wq-done', '✅ 答对了 · ' + fmtTime(msg.answer.ts || msg.ts)));
+      bubble.appendChild(mkEl('div', 'wq-answer',
+        senses.map(s => (s.pos ? s.pos + ' ' : '') + s.zh).join('\n')));
+      return;
+    }
+
+    if (zh2en) {
+      const lines = mkEl('div', 'wq-senses');
+      senses.forEach(s => {
+        const line = mkEl('div', 'wq-sense-line');
+        if (s.pos) line.appendChild(mkEl('span', 'wq-pos', s.pos));
+        line.appendChild(document.createTextNode(s.zh));
+        lines.appendChild(line);
+      });
+      bubble.appendChild(lines);
+    } else {
+      bubble.appendChild(mkEl('div', 'wq-word', msg.wordEn || ''));
+    }
+
+    const inputsBox = mkEl('div', 'wq-inputs');
+    const inputs = [];
+    const makeInput = (placeholder, wsId) => {
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.className = 'wq-input';
+      inp.placeholder = placeholder; inp.autocomplete = 'off'; inp.spellcheck = false;
+      if (wsId) inp.dataset.wsId = wsId;
+      return inp;
+    };
+    if (zh2en) {
+      const row = mkEl('div', 'wq-row');
+      row.appendChild(mkEl('span', 'wq-row-pos', '英文'));
+      const inp = makeInput('填写英文单词');
+      row.appendChild(inp);
+      inputsBox.appendChild(row);
+      inputs.push(inp);
+    } else {
+      senses.forEach((s, i) => {
+        const row = mkEl('div', 'wq-row');
+        row.appendChild(mkEl('span', 'wq-row-pos', s.pos || ('第 ' + (i + 1) + ' 行')));
+        const inp = makeInput('意思1,意思2', s.id);
+        row.appendChild(inp);
+        inputsBox.appendChild(row);
+        inputs.push(inp);
+      });
+    }
+
+    // 草稿只放在内存里，切主题重绘也不会丢；答错也不刷新 DOM，原样保留
+    const draft = msg.draft || {};
+    inputs.forEach((inp, i) => { inp.value = draft[i] || ''; });
+    inputs.forEach((inp, i) => {
+      inp.addEventListener('input', () => { msg.draft = msg.draft || {}; msg.draft[i] = inp.value; });
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); this.submit(msg.id, inputs); } });
+      inp.addEventListener('pointerdown', e => e.stopPropagation());   // 别误触长按菜单
+    });
+    bubble.appendChild(inputsBox);
+
+    const submit = mkEl('button', 'wq-submit', '提交');
+    submit.type = 'button';
+    submit.addEventListener('pointerdown', e => e.stopPropagation());
+    submit.addEventListener('click', () => { if (Chat.msgMenuLayer) return; this.submit(msg.id, inputs); });
+    bubble.appendChild(submit);
+
+    bubble.appendChild(mkEl('div', 'wq-msg',
+      zh2en ? '写出这个单词的英文拼写' : '按词性逐行写汉语意思，逗号/分号隔开、顺序不限，每行都要写全'));
+  },
+
+  /** 提交判定：不对就留在气泡里重填，已填内容保留 */
+  submit(msgId, inputs) {
+    const msg = Store.state.messages.find(m => m.id === msgId);
+    if (!msg || msg.answer) return;
+    const senses = msg.wordSenses || [];
+    const vals = inputs.map(i => i.value);
+    msg.draft = {}; vals.forEach((v, i) => { msg.draft[i] = v; });
+
+    const bad = [];
+    if (msg.direction === 'zh2en') {
+      if (normEn(vals[0] || '') !== normEn(msg.wordEn)) bad.push(0);
+    } else {
+      senses.forEach((s, i) => { if (!zhMatch(vals[i] || '', s.zh)) bad.push(i); });
+    }
+
+    if (bad.length) {
+      inputs.forEach((inp, i) => inp.classList.toggle('err', bad.indexOf(i) >= 0));
+      const bubble = inputs[0] && inputs[0].closest('.bubble');
+      const hint = bubble && bubble.querySelector('.wq-msg');
+      if (hint) {
+        hint.className = 'wq-msg err';
+        hint.textContent = msg.direction === 'zh2en'
+          ? '英文拼写不对，再写一次～'
+          : '第 ' + bad.map(i => i + 1).join('、') + ' 行没写全，再写一次～';
+      }
+      if (bubble) { bubble.classList.remove('wb-shake'); void bubble.offsetWidth; bubble.classList.add('wb-shake'); }
+      return;
+    }
+
+    msg.answer = { by: 'me', ts: Date.now(), values: vals };
+    delete msg.draft;
+    Store.save();
+    this.refreshMsg(msgId);
+    Bus.emit('word:answer', { msg });
+    if (!Chat.multiMode) Chat.requestReply(null);   // 答对了 TA 顺口接一句
+  },
+
+  refreshMsg(msgId) {
+    const bubble = Chat.els.messages.querySelector('.msg[data-msg-id="' + msgId + '"] .bubble');
+    const msg = Store.state.messages.find(m => m.id === msgId);
+    if (!bubble || !msg) return;
+    this.buildBubble(bubble, msg);
+    Chat.scrollToBottom(Chat.isNearBottom());
   },
 };
 
@@ -8205,12 +9411,12 @@ const CardsPanel = {
       gtag.textContent = g ? g.name : '未分组';
       info.appendChild(document.createTextNode(' '));
       info.appendChild(gtag);
-      // 天气专属回应字卡：标一个可点击的小标签，点它跳到天气板块
-      if ((Store.state.weather || []).some(w => w.cardId === card.id)) {
+      // 天气回应字卡：标一个可点击的小标签，点它跳到天气板块
+      if ((Store.state.weather || []).some(w => Store.weatherCardIds(w).includes(card.id))) {
         const wtag = document.createElement('span');
         wtag.className = 'card-weather-tag';
         wtag.textContent = '🌤 天气';
-        wtag.title = '这张是某个天气的专属回应字卡，点击去天气板块';
+        wtag.title = '这张是某个天气的回应字卡，点击去天气板块';
         wtag.addEventListener('click', () => { UI.closePanels(); if (typeof Weather !== 'undefined') Weather.open(); });
         info.appendChild(wtag);
       }
@@ -8692,6 +9898,33 @@ const Settings = {
       Bus.emit('settings:update', { key: 'survey.chance', value: sv.chance });
     });
 
+    // 单词小测：TA 主动从单词本目录抽一个单词考你
+    const syncWordQuizUI = () => {
+      const wq = Store.state.settings.wordQuiz || {};
+      const tg = $('#wordQuizAutoAsk');
+      if (tg) tg.checked = wq.autoAsk !== false;
+      const row = $('#wordQuizChanceRow');
+      if (row) row.style.display = wq.autoAsk !== false ? '' : 'none';
+      const ch = $('#wordQuizChance');
+      if (ch) ch.value = Math.round((wq.chance != null ? wq.chance : 0.12) * 100);
+    };
+    this.syncWordQuizUI = syncWordQuizUI;
+    $('#wordQuizAutoAsk').addEventListener('change', e => {
+      Store.state.settings.wordQuiz.autoAsk = e.target.checked;
+      Store.save();
+      syncWordQuizUI();
+      Bus.emit('settings:update', { key: 'wordQuiz.autoAsk', value: e.target.checked });
+    });
+    $('#wordQuizChance').addEventListener('change', () => {
+      const wq = Store.state.settings.wordQuiz;
+      let v = parseInt($('#wordQuizChance').value, 10);
+      if (isNaN(v)) v = 12;
+      wq.chance = clamp(v, 0, 100) / 100;
+      Store.save();
+      syncWordQuizUI();
+      Bus.emit('settings:update', { key: 'wordQuiz.chance', value: wq.chance });
+    });
+
     // 分段选择器（策略 / 主题）
     const bindSeg = (id, key, onChange) => {
       $('#' + id).addEventListener('click', e => {
@@ -8837,6 +10070,7 @@ const Settings = {
     if (this.syncTaRecallUI) this.syncTaRecallUI();
     if (typeof Age !== 'undefined' && Age.syncEntry) Age.syncEntry();
     if (this.syncSurveyUI) this.syncSurveyUI();
+    if (this.syncWordQuizUI) this.syncWordQuizUI();
     this.syncSeg('strategySeg', s.strategy);
     this.syncSeg('themeSeg', s.theme);
     this.syncSwatches();
@@ -9062,6 +10296,8 @@ const DataIO = {
       settings: Store.state.settings,
       cards: Store.state.cards,
       groups: Store.state.groups,
+      weather: Store.state.weather || [],
+      weatherGroupId: Store.state.weatherGroupId || null,
       cardUses: Store.state.cardUses,
       stickers: Store.state.stickers,
       stickerGroups: Store.state.stickerGroups || [],
@@ -9335,19 +10571,62 @@ window.PC = {
     /** 重新排期「TA 还没来得及撤」的消息（刷新页面时会自动调用一次） */
     resumeTaRecalls: () => Chat.resumePendingRecalls(),
   },
-  Weather: { open: () => Weather.open(), add: (dataUrl, name) => Store.addWeather({ dataUrl, name }), send: (id, by) => Chat.sendWeather(id, by || 'me'), list: () => Store.state.weather },
+  Weather: { open: () => Weather.open(), add: (dataUrl, name) => Store.addWeather({ dataUrl, name }), addCard: (id, text) => Store.addWeatherCard(id, text), cards: id => Store.getWeatherCards(id), send: (id, by) => Chat.sendWeather(id, by || 'me'), list: () => Store.state.weather },
   Age: { open: () => Age.open(), set: n => Age.setCurrent(n), reroll: () => Age.reroll(), add: s => Age.addNumbers(s), current: () => Age.cfg.current },
   Words: {
     open: () => Words.open(),
-    /** 用文本直接建一本单词书（一行一个：英文 词性 中文） */
+    /** 用文本直接建一本单词书（词典式：英文单独一行 + 每个词性一行；也兼容旧的一行一个词性） */
     addBook: (name, text) => Store.addWordBook(name, parseWordsText(text, name).words),
+    /** 改名 / 编辑整本内容（文本）/ 往末尾追加单词 */
+    rename: (id, name) => Store.renameWordBook(id, name),
+    editBook: (id, name, text) => Store.updateWordBook(id, name, parseWordsText(text, name).words),
+    addWords: (id, text) => Store.addWordsToBook(id, parseWordsText(text, '').words),
+    /** 当前书里的单词序列化成可编辑文本 */
+    text: id => { const b = Store.getWordBook(id); return b ? serializeWords(b.words) : ''; },
     books: () => Store.state.wordBooks || [],
     start: id => Words.startBook(id, false),
+    /** 跨所有单词本搜索，返回 [{ en, bookId, bookName, gi }] */
+    search: kw => {
+      const q = String(kw || '').trim().toLowerCase();
+      const out = [];
+      if (!q) return out;
+      (Store.state.wordBooks || []).forEach(book => {
+        buildWordGroups(book).forEach((g, gi) => {
+          if (String(g.en || '').toLowerCase().indexOf(q) >= 0 || g.items.some(it => String(it.zh || '').toLowerCase().indexOf(q) >= 0))
+            out.push({ en: g.en, bookId: book.id, bookName: book.name, gi });
+        });
+      });
+      return out;
+    },
+    /** 某本书的目录（只含英文单词）→ 直接进该词学习页 */
+    catalog: id => { const b = Store.getWordBook(id); return b ? buildWordGroups(b).map(g => g.en) : []; },
+    learnWord: (id, gi) => Words.enterWord(id, gi),
+    /** 当前组的单词数 / 词性条数 */
+    groups: id => { const b = Store.getWordBook(id || (Words.bookId || '')); return b ? buildWordGroups(b).map(g => ({ en: g.en, senses: g.items.map(i => ({ pos: i.pos, zh: i.zh })) })) : []; },
+    /**
+     * 判断当前组默写是否通过：
+     *   单字词性：answer('advance', '促进,推动')（旧用法不变）
+     *   多个词性：answer('advance', ['促进,推动', '进步,进展']) 或按词性名 / 条目 id 给对象
+     */
     answer: (en, zh) => {
       const b = Words.book(); if (!b) return false;
-      const w = b.words[clamp(b.progress, 0, b.words.length - 1)];
-      return !!w && normEn(en) === normEn(w.en) && zhMatch(zh, w.zh);
+      const { group } = Words.currentGroup(b);
+      if (!group || normEn(en) !== normEn(group.en)) return false;
+      if (group.items.length === 1) return typeof zh === 'string' ? zhMatch(zh, group.items[0].zh) : false;
+      if (Array.isArray(zh)) return group.items.every((it, i) => zhMatch(zh[i] || '', it.zh));
+      if (zh && typeof zh === 'object') return group.items.every(it => zhMatch(zh[it.id] ?? zh[it.pos] ?? '', it.zh));
+      return false;
     },
+  },
+  WordQuiz: {
+    /** 所有单词本目录里的可考词条 */
+    entries: () => WordQuiz.allEntries(),
+    /** 从目录把某个单词发到聊天里（TA 会逐行回答） */
+    sendWord: (id, gi) => WordQuiz.sendWordToChat(id, gi),
+    /** TA 出一道题：direction 可传 'en2zh' / 'zh2en'，不传随机 */
+    quiz: (direction) => WordQuiz.sendAsTa(null, direction),
+    /** 当前设置里的抽考概率 */
+    chance: () => (Store.state.settings.wordQuiz || {}).chance,
   },
   Search: { open: () => SearchPanel.open(), find: kw => { SearchPanel.keyword = kw || ''; SearchPanel.render(); return SearchPanel.results.map(r => r.msg); } },
   /** TA 的掌握程度：九项熟练度（百分比） */
