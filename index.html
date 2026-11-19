@@ -12277,17 +12277,28 @@ window.PC = {
   function metrics() {
     // 用首页容器（fixed inset:0）的高度，避免首帧布局未稳时 vp.clientHeight 偏小。
     var vh = home.clientHeight || vp.clientHeight || window.innerHeight || DESIGN_H;
-    // 按「宽度」铺满：首屏横向严格等于原图那 1152 设计 px，7 格全部可见不裁切。
-    s = vp.clientWidth / DESIGN_W;
-    worldH = Math.max(1500, vh / s);
+    // 缩放同时受「宽度」和「高度」约束：
+    // 只按宽度缩放时，宽而矮的窗口（电脑横屏）里 lineY 650~1190 的图标
+    // 会全部落到视口下沿之外 —— 页面只剩背景、图标一个都点不到。
+    // 这里取两者较小值，保证最下面那枚图标 + 文字也完整落在屏内。
+    var needH = 0;
+    for (var mi = 0; mi < FEATURES.length; mi++) {
+      if (FEATURES[mi].lineY > needH) needH = FEATURES[mi].lineY;
+    }
+    needH += 200;   // 图标 90 + 标签 + 底部余量
+    s = Math.min(vp.clientWidth / DESIGN_W, vh / needH);
+    worldH = Math.max(needH, vh / s);
 
     world.style.width = contentW + 'px';
     world.style.height = worldH + 'px';
     world.style.transform = 'scale(' + s + ')';   // 仅此一次，滚动期间不再写
+    // 内容比视口窄时水平居中；比视口宽时从 0 起、可原生横滑
+    var scaledW = contentW * s;
+    world.style.left = Math.max(0, (vp.clientWidth - scaledW) / 2) + 'px';
     // ★ 背景是 #starHome 直属的固定层，不在被 scale 的 #starWorld 内，
     //   CSS 用 no-repeat + 100% 100% 铺满视口即可；横滑只改 vp.scrollLeft，
     //   背景不参与滚动、也不受 scale 影响 → JS 这里一个字节都不用写。
-    scroller.style.width = (contentW * s) + 'px';  // 原生滚动的布局宽度
+    scroller.style.width = Math.max(scaledW, vp.clientWidth) + 'px';  // 原生滚动的布局宽度
     scroller.style.height = '100%';
 
     setSvg('starDust'); setSvg('starGrass'); setSvg('starVine');
@@ -12327,9 +12338,9 @@ window.PC = {
       // 纯绘制、无 filter，横滑是原生滚动，不会每帧重算。
       var common = ' fill="none" stroke-linecap="round" stroke-linejoin="round"';
       // 全屏夜色后提一档发光，暗底上三股白藤更透亮；仍是纯绘制、无 filter
-      out += '<path d="' + d + '"' + common + ' stroke="rgba(255,255,255,.12)" stroke-width="34"/>';
-      out += '<path d="' + d + '"' + common + ' stroke="rgba(255,255,255,.19)" stroke-width="22"/>';
-      out += '<path d="' + d + '"' + common + ' stroke="rgba(255,255,255,.28)" stroke-width="14"/>';
+      // 发光层从 4 道描边减到 2 道：横向滑动时整幅 SVG 要重绘，
+      // 每少一道宽描边都能明显降低光栅化开销，视觉上仍保留柔光 + 主白藤。
+      out += '<path d="' + d + '"' + common + ' stroke="rgba(255,255,255,.24)" stroke-width="18"/>';
       out += '<path d="' + d + '"' + common + ' stroke="#fff" stroke-width="' +
              (k === 0 ? 9 : 8) + '" opacity="' + (k === 0 ? 1 : .97) + '"/>';
     }
@@ -15921,6 +15932,18 @@ body::after { display: none !important; }                    /* 全屏噪点 SVG
 .composer textarea { background: var(--surface-solid); }
 .star-sway { animation: none !important; }                   /* 11 组大 SVG 的持续旋转 */
 .star-sway, .star-pull, .star-line { will-change: auto !important; }
+/* 大半径多层光晕是滑动时光栅化的大头，收敛到一层轻光晕 */
+.star-line { box-shadow: 0 0 10px 2px rgba(255,255,255,.55) !important; }
+.star-box {
+  box-shadow: 0 0 14px 2px rgba(255,255,255,.42),
+              inset 0 0 14px rgba(255,255,255,.22) !important;
+}
+.star-cell.is-pulling .star-line { box-shadow: 0 0 14px 3px rgba(255,255,255,.7) !important; }
+.star-cell.is-pulling .star-box {
+  box-shadow: 0 0 20px 4px rgba(255,255,255,.6),
+              inset 0 0 18px rgba(255,255,255,.3) !important;
+}
+.star-label { text-shadow: 0 1px 6px rgba(24,52,28,.8) !important; }
 </style>
 <script>
 (function () {
