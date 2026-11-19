@@ -87,7 +87,7 @@ body {
     radial-gradient(1100px 700px at 85% -10%, var(--accent-glow), transparent 55%),
     radial-gradient(900px 650px at -10% 105%, var(--glow-2), transparent 55%),
     var(--bg-base);
-  background-attachment: fixed;
+  background-attachment: scroll;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   position: fixed;           /* 移动端把 body 钉在视口，防止 layout viewport 被软键盘滚动 */
@@ -15021,6 +15021,9 @@ body.view-chat .topbar-actions .icon-btn#btnMusic:not(#btnWeather):not(#btnStarH
             updateManageBtns();
           });
         } else {
+          var qp = el('button', 'mp-play-quick', '▶'); qp.type = 'button'; qp.title = '播放';
+          qp.addEventListener('click', function (e) { e.stopPropagation(); Player.open(s.id); });
+          row.appendChild(qp);
           main.appendChild(actToggle);
         }
         function act(label, cls, fn) {
@@ -15041,6 +15044,9 @@ body.view-chat .topbar-actions .icon-btn#btnMusic:not(#btnWeather):not(#btnStarH
           else { box.style.display = 'none'; box.innerHTML = ''; }
         });
         act('邀请 TA', '', function () { sendInvite(s.id, 'me'); });
+        if (mode === 'mine') act('加到 TA 库', '', function () {
+          var mm = M(); if (mm.taIds.indexOf(s.id) < 0) { mm.taIds.push(s.id); save(); UI.toast('已加到 TA 的音乐库'); renderPanel(); }
+        });
         if (mode === 'ta') act('让 TA 邀请我', '', function () { sendInvite(s.id, 'ta'); });
         if (s.srcType === 'url' && (s.needsOrigin || s.originUrl)) {
           act(s.originUrl ? '打开歌曲页' : '打开原链接', '', function () {
@@ -15688,6 +15694,9 @@ body.view-chat .topbar-actions .icon-btn#btnMusic:not(#btnWeather):not(#btnStarH
   border: 1px dashed var(--divider, rgba(67,57,74,.18)); background: transparent;
   color: var(--text-2, #9a8ea2); font-size: 11px; cursor: pointer; }
 .mp-act-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.mp-play-quick { flex: none; align-self: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent, #ec7fa9); color: #fff; font-size: 12px; display: grid; place-items: center; }
+.mp-play-quick:active { transform: scale(.94); }
 .mp-song.managing { cursor: pointer; }
 .mp-song.managing .mp-song-acts { display: none !important; }
 .mp-check { width: 18px; height: 18px; flex: none; accent-color: var(--accent, #ec7fa9); }
@@ -15902,6 +15911,16 @@ textarea.xv-in { min-height: 76px; resize: vertical; line-height: 1.6; }
 .xa-prob input { width: 46px; border: 0; background: transparent; color: var(--text-1, #43394a); font-size: 12px; text-align: right; outline: none; }
 .xa-opt-key { margin-top: 10px; font-size: 12px; }
 .xa-opt-key > b { display: block; margin-bottom: 5px; color: var(--text-2, #9a8ea2); font-weight: 600; }
+
+/* 12. 流畅度：关掉持续重绘的高开销效果 */
+body::after { display: none !important; }                    /* 全屏噪点 SVG 滤镜 */
+.composer, .composer textarea, .sticker-popover {
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.composer { background: var(--panel-solid); }
+.composer textarea { background: var(--surface-solid); }
+.star-sway { animation: none !important; }                   /* 11 组大 SVG 的持续旋转 */
+.star-sway, .star-pull, .star-line { will-change: auto !important; }
 </style>
 <script>
 (function () {
