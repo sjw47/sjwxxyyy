@@ -149,6 +149,9 @@ body::after { display: none !important; }
 }
 .composer { background: var(--surface-solid) !important; }
 .sticker-popover { background: var(--panel-solid) !important; }
+/* SOS FIX: 纵向手势完整交回浏览器原生滚动。星空首页的 #starViewport 设了
+   touch-action: pan-x（只许横滑），一旦它的层盖到聊天区上方，纵向就完全滑不动。 */
+.chat-area { touch-action: pan-y !important; -webkit-overflow-scrolling: touch !important; }
 /* PERF PATCH END */
 
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
@@ -164,7 +167,11 @@ textarea, input { font-family: inherit; }
    ========================================================================== */
 .app {
   position: relative;
-  top: var(--vvt, 0px);          /* iOS 键盘推动可视窗口时，页面一起下移，顶部不会被截 */
+  /* LAYOUT FIX: 原来这里是 top: var(--vvt, 0px)，把整个 app 往下推 --vvt。
+     而 --vvt 来自 visualViewport.offsetTop —— 页面滚动残留 / 地址栏回弹时
+     它会变成几百 px，于是 topbar 掉到屏幕中部、上半屏整片空白、输入区被推出
+     可视区（见用户截图）。body 本身已 fixed + inset:0，主布局不需要这个偏移。 */
+  top: 0;
   height: 100vh; height: var(--vvh, 100dvh);
   max-width: 920px;
   margin: 0 auto;
@@ -2664,7 +2671,6 @@ body[data-theme="dark"] { --star-vbg-rgb: 28,26,42; }
   display: block; width: 100%; height: 100%; border: 0; background: transparent;
 }
 
-</style>
 
 /* ========== 流畅优化（追加在最后，只动开销大的合成项） ========== */
 /* 大面板 / 聊天玻璃层不再每帧重算 9px 模糊；底色与透明度保留，只是不再把背后虚掉 */
@@ -2687,6 +2693,7 @@ body.view-chat:not(.site-css-on)::before {
 body.view-chat #starHome,
 body.view-panel #starHome,
 body.view-function #starHome { transition: none !important; }
+</style>
 </head>
 <body data-theme="light" data-accent="rose">
 
@@ -5201,6 +5208,11 @@ const Chat = {
     $('#app').appendChild(this.scrollBtn);
     // 合并到每帧一次：isNearBottom 会读 scrollHeight，每个 scroll 事件都读
     // 会强制同步布局；passive 让浏览器不必等待脚本即可继续滚动。
+    // SOS FIX: 只在真实手指按下时打时间戳（程序写 scrollTop 不会触发它），
+    // 让 scrollToBottom 知道「用户正在滑」，别抢滚动权。
+    ['touchstart', 'pointerdown'].forEach(t => {
+      this.els.area.addEventListener(t, () => { this._lastUserScrollAt = Date.now(); }, { passive: true });
+    });
     let scrollUiRaf = 0;
     this.els.area.addEventListener('scroll', () => {
       if (scrollUiRaf) return;
@@ -6949,6 +6961,11 @@ const Chat = {
   },
   scrollToBottom(force) {
     if (!force && !this.isNearBottom()) return;
+    /* SOS FIX: 定时器 / MutationObserver 会连锁触发 renderAll → scrollToBottom(true)，
+       每帧把 scrollTop 写回底部，和手指抢滚动权，表现就是「滑一下被拽回去 /
+       完全滑不动」（原文件 L186 注释也承认这个坑）。用户刚碰过列表就 600ms
+       内不强制拽；刷新、初次渲染的 force 调用不受影响。 */
+    if (force && Date.now() - (this._lastUserScrollAt || 0) < 600) return;
     requestAnimationFrame(() => { this.els.area.scrollTop = this.els.area.scrollHeight; });
   },
 
@@ -12783,8 +12800,12 @@ const DataIO = {
     const t = Math.max(0, Math.round(vv.offsetTop || 0));
     const layoutH = root.clientHeight || window.innerHeight || h;
     const bottom = Math.max(0, Math.round(layoutH - t - h));
-    // 只有键盘 / 输入法工具栏 / 系统栏把视口顶起来时才需要 JS 接管高度。
-    const kbOpen = bottom > 120 || t > 60;
+    // LAYOUT FIX: 只用「底部被占」判断键盘。旧判据里的 `t > 60` 会把
+    // 页面滚动残留 / 地址栏回弹造成的 offsetTop 误判成键盘，进而把 --vvt
+    // 写成几百像素、.app 整体下移 —— 上半屏整片空白就是这么来的。
+    // 再加一条上限：底部占用超过六成视口视为异常读数，直接交回 CSS，
+    // 免得 --vvh 被压成一条缝。
+    const kbOpen = bottom > 120 && bottom < layoutH * 0.6;
 
     if (!kbOpen) {
       // 常态把高度完全交回 CSS 的 100dvh：地址栏收放由浏览器原生处理。
@@ -12805,7 +12826,9 @@ const DataIO = {
     if (key === vvKey) return;
     vvKey = key;
     root.style.setProperty('--vvh', h + 'px');
-    root.style.setProperty('--vvt', t + 'px');
+    // LAYOUT FIX: --vvt 恒为 0。body 已 fixed，主布局不需要跟着可视窗口上移；
+    // 长按菜单 / 噪点层都是 fixed，用 inset:0 + --vvh 贴合可视区即可。
+    root.style.setProperty('--vvt', '0px');
     root.style.setProperty('--vv-bottom', bottom + 'px');
     document.body.classList.add('keyboard-open');
     // 只在刚进入键盘态时贴一次底，地址栏抖动不再反复拽动滚动位置
@@ -26014,7 +26037,9 @@ body.icon-edit .icon-edit-tip { display: block; }
   }, { capture: true, passive: false });
 
   document.addEventListener('touchmove', function (e) {
-    if (!press || !press.viaTouch) return;
+    /* SOS FIX: 原来只看 press，一旦拖拽状态残留（切视图 / 手势被打断），
+       这个 capture 级监听就会在聊天页也 preventDefault，整页纵向滑不动。 */
+    if (!isHomeView() || !press || !press.viaTouch) return;
     var t = touchPoint(e);
     if (!t) return;
     movePress(t.clientX, t.clientY, function () {
@@ -26040,7 +26065,7 @@ body.icon-edit .icon-edit-tip { display: block; }
   }, true);
 
   document.addEventListener('pointermove', function (e) {
-    if (!press || press.viaTouch) return;
+    if (!isHomeView() || !press || press.viaTouch) return;
     if (e.pointerId != null && e.pointerId !== press.id) return;
     movePress(e.clientX, e.clientY, function () {
       if (e.cancelable) e.preventDefault();
