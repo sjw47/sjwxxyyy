@@ -127,6 +127,30 @@ body::after {
 /* 面板打开时关掉全屏噪点：实色面板本就盖住了它，省下一层 SVG 滤镜合成 */
 body.panel-open::after { opacity: 0; }
 
+/* ==========================================================================
+   PERF PATCH · 流畅版
+   删除从本行到「PERF PATCH END」即可 100% 恢复原始视觉效果。
+   本段只关掉「滚动/打字时每帧都要重新合成」的滤镜层，不改任何交互逻辑、
+   不改数据结构。它是全局覆盖：美化预设/自定义 CSS 若给 .composer 重新加了
+   blur，也会被一并关掉（这是性能取舍，删掉本段即完全恢复）。
+   1) body::after 的 feTurbulence 全屏噪点：SVG 滤镜层与聊天滚动一起参与
+      每帧合成，是真机掉帧的大头（原文件 L1979 的注释也点明了这点，但只在
+      星空视图关掉了它，聊天页全程开着）。
+   2) .composer / .composer textarea / .sticker-popover 三处 blur(16~20px)：
+      输入区在打字、表情弹层在滑入时都要逐帧重算模糊。改用同一套主题变量
+      里的实色底，色调一致，但不再触发实时滤镜。
+   ========================================================================== */
+body::after { display: none !important; }
+.composer,
+.composer textarea,
+.sticker-popover {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.composer { background: var(--surface-solid) !important; }
+.sticker-popover { background: var(--panel-solid) !important; }
+/* PERF PATCH END */
+
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 textarea, input { font-family: inherit; }
@@ -3641,7 +3665,9 @@ body:not(.show-hints) #settingsPanel #signEntrySub { display: block !important; 
       });
     }
   };
-  setInterval(poll, 700);
+  /* PERF: 改名已有 tanamechange / storage / focus 三个事件驱动，这里只是兜底轮询；
+     700ms → 3000ms，且切到后台直接不跑，避免无谓的定时器唤醒。 */
+  setInterval(function () { if (!document.hidden) poll(); }, 3000);
   window.addEventListener('storage', broadcast);
   window.addEventListener('focus', broadcast);
   document.addEventListener('DOMContentLoaded', broadcast);
@@ -4014,7 +4040,7 @@ const Store = {
   state: null,
 
   /* ---- 持久化相关 ---- */
-  SAVE_DEBOUNCE: 300,     // 连续操作合并成一次写入（毫秒）
+  SAVE_DEBOUNCE: 800,     // PERF: 300 → 800。整包 put(全量 state) 很贵，放宽合并窗口；关页面/切后台仍有 flushNow 立即落盘，不会丢数据
   backend: 'idb',         // idb | localStorage | memory（实际使用的后端，供诊断）
   _dirty: false,
   _timer: null,
@@ -5302,7 +5328,8 @@ const Chat = {
     }
     this.els.messages.insertBefore(el, ref);
     this.lastRendered = { msg, dayKey };
-    this.els.empty.classList.add('hidden');
+    // PERF: renderAll 末尾已统一设置空状态，initial 批量渲染时不必逐条刷 3000 次 classList
+    if (!initial) this.els.empty.classList.add('hidden');
   },
 
   shouldShowMeta(msg, prev) {
@@ -12718,8 +12745,21 @@ const DataIO = {
     $('#taNameTop').textContent = Store.state.settings.taName || 'TA';
     UI.toast('数据已在其他窗口更新');
   }
-  SyncChannel.on(() => reloadFromStorage());
-  window.addEventListener('storage', e => { if (e.key === STORE_KEY && e.newValue) reloadFromStorage(); });
+  /* PERF: 合并短时间内的重复同步广播。两个标签页同时开着时，A 写盘 → B 重载 →
+     B 的 ensure()/字段迁移又写盘 → A 重载…会形成跨标签乒乓，每一轮都要跑
+     Chat.renderAll + 5 个模块重渲染。这里「先执行一次，冷却期内的广播攒成一次
+     补执行」：同步语义不变，只是把风暴压成一次，不丢最后一次更新。 */
+  let _syncReloadTimer = 0, _syncReloadPending = false;
+  function scheduleSyncReload() {
+    if (_syncReloadTimer) { _syncReloadPending = true; return; }
+    reloadFromStorage();
+    _syncReloadTimer = setTimeout(function () {
+      _syncReloadTimer = 0;
+      if (_syncReloadPending) { _syncReloadPending = false; scheduleSyncReload(); }
+    }, 800);
+  }
+  SyncChannel.on(scheduleSyncReload);
+  window.addEventListener('storage', e => { if (e.key === STORE_KEY && e.newValue) scheduleSyncReload(); });
 
   // ---------- 关页面 / 切后台前把最后一次改动落盘 ----------
   // 写入是异步的（IndexedDB），所以提前一步触发，避免数据还留在内存里。
